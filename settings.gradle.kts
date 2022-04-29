@@ -1,4 +1,4 @@
-rootProject.name = "hivemq-hello-world-extension"
+rootProject.name = "hivemq-sparkplug-aware-extension"
 
 pluginManagement {
     plugins {

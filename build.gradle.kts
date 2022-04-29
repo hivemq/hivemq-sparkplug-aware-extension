@@ -5,19 +5,26 @@ plugins {
 }
 
 group = "com.hivemq.extensions"
-description = "HiveMQ 4 Hello World Extension - a simple reference for all extension developers"
+description = "HiveMQ Sparkplug Aware Extension"
 
 hivemqExtension {
-    name.set("Hello World Extension")
+    name.set("Sparkplug Aware Extension")
     author.set("HiveMQ")
     priority.set(1000)
     startPriority.set(1000)
-    mainClass.set("$group.helloworld.HelloWorldMain")
+    mainClass.set("$group.sparkplug.SparkplugAwareMain")
     sdkVersion.set("$version")
 
     resources {
         from("LICENSE")
     }
+}
+
+
+dependencies {
+    implementation("com.google.guava:guava:${property("guava.version")}")
+    implementation("org.jetbrains:annotations:${property("jetbrainsAnnotations.version")}")
+    implementation("org.apache.commons:commons-lang3:${property("commons-lang3.version")}")
 }
 
 /* ******************** test ******************** */
@@ -50,10 +57,11 @@ license {
 /* ******************** debugging ******************** */
 
 tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(file("/your/path/to/hivemq-<VERSION>"))
+    hivemqHomeDirectory.set(file("/Users/ahelmbre/WorkingGroups/hivemq-4.7.3"))
 }
 
 tasks.runHivemqWithExtension {
+    environment["HIVEMQ_LOG_LEVEL"] = "DEBUG"
     debugOptions {
         enabled.set(false)
     }

@@ -19,12 +19,19 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
+import com.hivemq.extensions.sparkplug.SparkplugPublishInterceptor;
+import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -32,16 +39,19 @@ import static org.mockito.Mockito.*;
 /**
  * @author Yannick Weber
  */
-class HelloWorldInterceptorTest {
+class SparkplugPublishInterceptorTest {
 
-    private @NotNull HelloWorldInterceptor helloWorldInterceptor;
+    private @NotNull SparkplugPublishInterceptor helloWorldInterceptor;
     private @NotNull PublishInboundInput publishInboundInput;
     private @NotNull PublishInboundOutput publishInboundOutput;
     private @NotNull ModifiablePublishPacket publishPacket;
+    private @NotNull Path file;
 
     @BeforeEach
-    void setUp() {
-        helloWorldInterceptor = new HelloWorldInterceptor();
+    void setUp(final @TempDir @NotNull Path tempDir) {
+        file = tempDir.resolve("sparkplug.properties");
+        SparkplugConfiguration configuration = new SparkplugConfiguration(file.toFile());
+        helloWorldInterceptor = new SparkplugPublishInterceptor(configuration);
         publishInboundInput = mock(PublishInboundInput.class);
         publishInboundOutput = mock(PublishInboundOutput.class);
         publishPacket = mock(ModifiablePublishPacket.class);
@@ -49,7 +59,8 @@ class HelloWorldInterceptorTest {
     }
 
     @Test
-    void topicHelloWorld_payloadModified() {
+    void topicSparkplug_published() throws IOException {
+        Files.write(file, List.of("sparkplug.version:spBv1.0"));
         when(publishPacket.getTopic()).thenReturn("hello/world");
         helloWorldInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
         final ArgumentCaptor<ByteBuffer> captor = ArgumentCaptor.forClass(ByteBuffer.class);

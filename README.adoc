@@ -35,7 +35,7 @@ You should see a log message with its identifier and MQTT version.
 
 === Automatic Testing
 
-Execute the `HelloWorldInterceptorIT` for automatic testing of the extension.
+Execute the `SparkplugPublishInterceptorIT` for automatic testing of the extension.
 It uses the {hivemq-testcontainer}[HiveMQ Testcontainer] to automatically package, deploy and run the extension inside a HiveMQ docker container.
 The test creates a {hivemq-mqtt-client}[HiveMQ MQTT Client] to publish and receive a message with the topic 'hello/world'.
 It checks whether the payload has been changed correctly to 'Hello World!'.

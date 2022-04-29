@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.helloworld;
+package com.hivemq.extensions.sparkplug;
 
 import com.hivemq.extension.sdk.api.ExtensionMain;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.events.EventRegistry;
 import com.hivemq.extension.sdk.api.parameter.*;
 import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extension.sdk.api.services.intializer.InitializerRegistry;
+import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /**
  * This is the main class of the extension,
@@ -32,9 +36,10 @@ import org.slf4j.LoggerFactory;
  * @author Florian Limpöck
  * @since 4.0.0
  */
-public class HelloWorldMain implements ExtensionMain {
+public class SparkplugAwareMain implements ExtensionMain {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(HelloWorldMain.class);
+    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugAwareMain.class);
+    private @Nullable SparkplugConfiguration configuration;
 
     @Override
     public void extensionStart(
@@ -42,6 +47,12 @@ public class HelloWorldMain implements ExtensionMain {
             final @NotNull ExtensionStartOutput extensionStartOutput) {
 
         try {
+            final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
+            //read & validate configuration
+            if (!configurationValidated(extensionStartOutput, extensionHomeFolder) || configuration == null) {
+                return;
+            }
+
             addClientLifecycleEventListener();
             addPublishModifier();
 
@@ -64,18 +75,33 @@ public class HelloWorldMain implements ExtensionMain {
 
     private void addClientLifecycleEventListener() {
         final EventRegistry eventRegistry = Services.eventRegistry();
-
-        final HelloWorldListener helloWorldListener = new HelloWorldListener();
-
-        eventRegistry.setClientLifecycleEventListener(input -> helloWorldListener);
+        final SparkplugAwareListener sparkplugAwareListener = new SparkplugAwareListener();
+        eventRegistry.setClientLifecycleEventListener(input -> sparkplugAwareListener);
     }
 
     private void addPublishModifier() {
         final InitializerRegistry initializerRegistry = Services.initializerRegistry();
-
-        final HelloWorldInterceptor helloWorldInterceptor = new HelloWorldInterceptor();
-
+        final SparkplugPublishInterceptor sparkplugPublishInterceptor = new SparkplugPublishInterceptor(configuration);
         initializerRegistry.setClientInitializer(
-                (initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(helloWorldInterceptor));
+                (initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(sparkplugPublishInterceptor));
+    }
+
+    private boolean configurationValidated(
+            final @NotNull ExtensionStartOutput extensionStartOutput, final @NotNull File extensionHomeFolder) {
+        boolean isValid = false;
+        configuration = new SparkplugConfiguration(extensionHomeFolder);
+        try {
+            isValid = configuration.readPropertiesFromFile();
+            configuration.getSparkplugVersion();
+            configuration.getSparkplugSysTopic();
+        } catch (Exception any) {
+            isValid = false;
+            log.error("Could not read properties", any);
+        }
+
+        if (!isValid) {
+            extensionStartOutput.preventExtensionStartup("Could not read properties");
+        }
+        return isValid;
     }
 }

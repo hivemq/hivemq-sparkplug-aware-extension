@@ -20,6 +20,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extensions.sparkplug.SparkplugPublishInterceptor;
 import com.hivemq.testcontainer.junit5.HiveMQTestContainerExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * This tests the functionality of the {@link HelloWorldInterceptor}.
+ * This tests the functionality of the {@link SparkplugPublishInterceptor}.
  * It uses the HiveMQ Testcontainer to automatically package and deploy this extension inside a HiveMQ docker container.
  * <p>
  * This integration test MUST be executed by Gradle as the extension is built by the 'hivemqExtensionZip' task.
@@ -40,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Yannick Weber
  * @since 4.3.1
  */
-class HelloWorldInterceptorIT {
+class SparkplugPublishInterceptorIT {
 
     @RegisterExtension
     final @NotNull HiveMQTestContainerExtension extension = new HiveMQTestContainerExtension()
