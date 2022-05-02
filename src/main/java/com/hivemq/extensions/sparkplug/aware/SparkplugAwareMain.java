@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.sparkplug;
+package com.hivemq.extensions.sparkplug.aware;
 
 import com.hivemq.extension.sdk.api.ExtensionMain;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
@@ -21,8 +21,10 @@ import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.events.EventRegistry;
 import com.hivemq.extension.sdk.api.parameter.*;
 import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extension.sdk.api.services.builder.Builders;
+import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.intializer.InitializerRegistry;
-import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
+import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +83,9 @@ public class SparkplugAwareMain implements ExtensionMain {
 
     private void addPublishModifier() {
         final InitializerRegistry initializerRegistry = Services.initializerRegistry();
-        final SparkplugPublishInterceptor sparkplugPublishInterceptor = new SparkplugPublishInterceptor(configuration);
+        final PublishBuilder publishBuilder = Builders.publish();
+        final SparkplugPublishInterceptor sparkplugPublishInterceptor =
+                new SparkplugPublishInterceptor(configuration, Services.publishService(), publishBuilder);
         initializerRegistry.setClientInitializer(
                 (initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(sparkplugPublishInterceptor));
     }

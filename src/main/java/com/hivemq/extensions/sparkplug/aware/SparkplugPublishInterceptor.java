@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hivemq.extensions.sparkplug;
+package com.hivemq.extensions.sparkplug.aware;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
@@ -24,9 +24,9 @@ import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extension.sdk.api.services.builder.Builders;
 import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.publish.PublishService;
-import com.hivemq.extensions.sparkplug.configuration.SparkplugConfiguration;
-import com.hivemq.extensions.sparkplug.topics.MessageType;
-import com.hivemq.extensions.sparkplug.topics.TopicStructure;
+import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
+import com.hivemq.extensions.sparkplug.aware.topics.MessageType;
+import com.hivemq.extensions.sparkplug.aware.topics.TopicStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,13 +41,18 @@ import java.util.concurrent.CompletableFuture;
  */
 public class SparkplugPublishInterceptor implements PublishInboundInterceptor {
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugPublishInterceptor.class);
-    final PublishService publishService = Services.publishService();
+    private final PublishService publishService;
+    private final PublishBuilder publishBuilder;
     private final @NotNull String sparkplugVersion;
     private final @NotNull String sysTopic;
 
-    public SparkplugPublishInterceptor(final @NotNull SparkplugConfiguration configuration) {
+    public SparkplugPublishInterceptor(final @NotNull SparkplugConfiguration configuration,
+                                       final @NotNull PublishService publishService,
+                                       final @NotNull PublishBuilder publishBuilder ) {
         this.sparkplugVersion = configuration.getSparkplugVersion();
         this.sysTopic = configuration.getSparkplugSysTopic();
+        this.publishService = publishService;
+        this.publishBuilder = publishBuilder;
     }
 
     @Override
@@ -63,21 +68,22 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor {
                 (topicStructure.getMessageType() == MessageType.NBIRTH
                         || topicStructure.getMessageType() == MessageType.DBIRTH)) {
             //it is a sparkplug publish
-            final PublishBuilder publishBuilder = Builders.publish();
+            final PublishBuilder myBuilder = publishBuilder;
             try {
                 // Build the publish
-                publishBuilder.fromPublish(publishInboundInput.getPublishPacket());
-                publishBuilder.topic(sysTopic + topic).retain(true);
-                publishToSysTopic(topic, publishBuilder);
+                myBuilder.fromPublish(publishInboundInput.getPublishPacket());
+                myBuilder.topic(sysTopic + topic);
+                myBuilder.retain(true);
+                publishToSysTopic(topic, myBuilder);
             } catch (Exception all) {
                 log.error("Publish to sysTopic {} failed: {}", sysTopic, all.getMessage());
             }
         }
     }
 
-    private void publishToSysTopic(String topic, PublishBuilder publishBuilder) {
+    private void publishToSysTopic(String topic, PublishBuilder myBuilder) {
         // Asynchronously sent PUBLISH
-        final CompletableFuture<Void> future = publishService.publish(publishBuilder.build());
+        final CompletableFuture<Void> future = publishService.publish(myBuilder.build());
         future.whenComplete((aVoid, throwable) -> {
             if (throwable == null) {
                 log.debug("Publish Msg from {} to {} ", topic, sysTopic + topic);
