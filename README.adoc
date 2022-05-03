@@ -24,9 +24,15 @@ This includes on top of providing MQTT features like Retained Message handling a
 * A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id`
 * A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on this topic with the MQTT retain flag set to true
 
-This Extension registers a PublishInboundInterceptor to forward Sparkplug (N/D) BIRTH certificates as Retained messages to an additional sparkplug system topic.
+This Extension registers a PublishInboundInterceptor to forward Sparkplug (N/D)BIRTH certificates as Retained messages to the configured sparkplug system topic.
+
 The topic structure, and the sparkplug version can be configured.
 
+*Default properties are:*
+```
+sparkplug.version:spBv1.0
+sparkplug.systopic:$sparkplug/certificates/
+```
 
 == Installation
 
