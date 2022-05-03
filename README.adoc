@@ -14,8 +14,17 @@ image:https://img.shields.io/github/workflow/status/hivemq/hivemq-sparkplug-awar
 
 == Purpose
 
-This HiveMQ Sparkplug aware extension has the purpose to fulfil the sparkplug specification to work as an Sparkplu Aware Broker.
-it registers a PublishInboundInterceptor to forward all Sparkplug BIRTH and DEATH certificates as Retained messages to an additional sparkplug system topic.
+This HiveMQ Sparkplug aware extension has the purpose to fulfil the sparkplug specification to work as a Sparkplug Aware Broker.
+
+This includes on top of providing MQTT features like Retained Message handling and all QoS levels the following:
+
+* A Sparkplug Aware MQTT Server MUST store NBIRTH and DBIRTH messages as they pass through the MQTT Server
+* A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id`
+* A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on the topic: $sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id with the MQTT retain flag set to true
+* A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id`
+* A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on this topic with the MQTT retain flag set to true
+
+This Extension registers a PublishInboundInterceptor to forward Sparkplug (N/D) BIRTH certificates as Retained messages to an additional sparkplug system topic.
 The topic structure, and the sparkplug version can be configured.
 
 

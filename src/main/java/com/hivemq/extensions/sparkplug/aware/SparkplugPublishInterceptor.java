@@ -20,8 +20,6 @@ import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundIntercepto
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
-import com.hivemq.extension.sdk.api.services.Services;
-import com.hivemq.extension.sdk.api.services.builder.Builders;
 import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.publish.PublishService;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
@@ -48,7 +46,7 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor {
 
     public SparkplugPublishInterceptor(final @NotNull SparkplugConfiguration configuration,
                                        final @NotNull PublishService publishService,
-                                       final @NotNull PublishBuilder publishBuilder ) {
+                                       final @NotNull PublishBuilder publishBuilder) {
         this.sparkplugVersion = configuration.getSparkplugVersion();
         this.sysTopic = configuration.getSparkplugSysTopic();
         this.publishService = publishService;

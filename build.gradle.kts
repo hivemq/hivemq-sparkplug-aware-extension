@@ -4,7 +4,7 @@ plugins {
     id("com.github.sgtsilvio.gradle.utf8")
 }
 
-group = "com.hivemq.extensions"
+group = "com.hivemq.extensions.sparkplug.aware"
 description = "HiveMQ Sparkplug Aware Extension"
 
 hivemqExtension {
@@ -12,7 +12,7 @@ hivemqExtension {
     author.set("HiveMQ")
     priority.set(1000)
     startPriority.set(1000)
-    mainClass.set("$group.sparkplug.SparkplugAwareMain")
+    mainClass.set("$group.SparkplugAwareMain")
     sdkVersion.set("$version")
 
     resources {
