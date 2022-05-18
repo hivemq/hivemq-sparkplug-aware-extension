@@ -35,7 +35,7 @@ import java.io.File;
  * which is instantiated either during the HiveMQ start up process (if extension is enabled)
  * or when HiveMQ is already started by enabling the extension.
  *
- * @author Florian Limpöck
+ * @author Anja Helmbrecht-Schaar
  * @since 4.0.0
  */
 public class SparkplugAwareMain implements ExtensionMain {
@@ -60,6 +60,13 @@ public class SparkplugAwareMain implements ExtensionMain {
 
             final ExtensionInformation extensionInformation = extensionStartInput.getExtensionInformation();
             log.info("Started " + extensionInformation.getName() + ":" + extensionInformation.getVersion());
+
+            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_TOPIC);
+            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_RETAIN);
+            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_TOPIC);
+            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_RETAIN);
+            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NDEATH_TIMESTAMP);
+
 
         } catch (final Exception e) {
             log.error("Exception thrown at extension start: ", e);
@@ -86,8 +93,14 @@ public class SparkplugAwareMain implements ExtensionMain {
         final PublishBuilder publishBuilder = Builders.publish();
         final SparkplugPublishInterceptor sparkplugPublishInterceptor =
                 new SparkplugPublishInterceptor(configuration, Services.publishService(), publishBuilder);
+        final SparkplugSubscribeInterceptor sparkplugSubscribeInterceptor =
+                new SparkplugSubscribeInterceptor(configuration);
+
         initializerRegistry.setClientInitializer(
-                (initializerInput, clientContext) -> clientContext.addPublishInboundInterceptor(sparkplugPublishInterceptor));
+                (initializerInput, clientContext) -> {
+                    clientContext.addPublishInboundInterceptor(sparkplugPublishInterceptor);
+                    clientContext.addSubscribeInboundInterceptor(sparkplugSubscribeInterceptor);
+                });
     }
 
     private boolean configurationValidated(

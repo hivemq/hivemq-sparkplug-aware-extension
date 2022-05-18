@@ -22,16 +22,25 @@ import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
 import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.publish.PublishService;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
+import org.eclipse.tahu.SparkplugInvalidTypeException;
+import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
+import org.eclipse.tahu.message.model.Metric;
+import org.eclipse.tahu.message.model.SparkplugBPayload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import static org.eclipse.tahu.message.model.MetricDataType.Int32;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -46,6 +55,8 @@ class SparkplugPublishInterceptorTest {
     private @NotNull ModifiablePublishPacket publishPacket;
     private @NotNull PublishBuilder publishBuilder;
     private @NotNull Path file;
+    List<Metric> metrics = new ArrayList<Metric>();
+    byte[] encodedSparkplugPayload;
 
     @BeforeEach
     void setUp(final @TempDir @NotNull Path tempDir) {
@@ -58,6 +69,13 @@ class SparkplugPublishInterceptorTest {
         publishInboundOutput = mock(PublishInboundOutput.class);
         publishPacket = mock(ModifiablePublishPacket.class);
         when(publishInboundOutput.getPublishPacket()).thenReturn(publishPacket);
+
+        try {
+            encodedSparkplugPayload = createSparkplugBPayload();
+        } catch (IOException | SparkplugInvalidTypeException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Test
@@ -72,9 +90,26 @@ class SparkplugPublishInterceptorTest {
     }
 
     @Test
-    void topicNotHelloWorld_payloadNotModified() {
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/node/item");
+    void topicNBIRTH_payloadNotModified() {
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/item");
         sparkplugPublishInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
         verify(publishPacket, times(0)).setPayload(any());
+    }
+
+    @Test
+    void topicNDEATH_payloadModified() {
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDEATH/edgeItem");
+        when(publishPacket.getPayload()).thenReturn(Optional.of(ByteBuffer.wrap(encodedSparkplugPayload)));
+        sparkplugPublishInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
+        verify(publishPacket, times(1)).setPayload(any());
+    }
+
+    private byte[] createSparkplugBPayload() throws IOException, SparkplugInvalidTypeException {
+        // Add a 'real time' metric
+        metrics.add(new Metric.MetricBuilder("a metric", Int32, 42)
+                .timestamp(new Date())
+                .createMetric());
+        SparkplugBPayload sparkplugBPayload = new SparkplugBPayload( new Date(), metrics, 1, null, null);
+        return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload);
     }
 }

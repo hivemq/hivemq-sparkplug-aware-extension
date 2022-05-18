@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-present HiveMQ GmbH
+ * Copyright 2018-present HiveMQ GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Reads a property file containing influxdb properties
  * and provides some utility methods for working with {@link Properties}.
  *
- * @author Christoph Schäbel
  * @author Anja Helmbrecht-Schaar
  */
 public class SparkplugConfiguration extends PropertiesReader {
@@ -40,10 +39,12 @@ public class SparkplugConfiguration extends PropertiesReader {
     private static final @NotNull String SPARKPLUG_SYSTOPIC = "sparkplug.systopic";
     private static final @NotNull String SPARKPLUG_SYSTOPIC_DEFAULT = "$sparkplug/certificates/";
 
+    private static final @NotNull String SPARKPLUG_COMPRESSION = "sparkplug.compression";
+    private static final @NotNull String SPARKPLUG_COMPRESSION_DEFAULT = "false";
+
     public SparkplugConfiguration(@NotNull final File configFilePath) {
         super(configFilePath);
     }
-
 
     @Override
     public @NotNull String getFilename() {
@@ -53,6 +54,23 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     public @NotNull String getSparkplugSysTopic() {
         return validateStringProperty(SPARKPLUG_SYSTOPIC, SPARKPLUG_SYSTOPIC_DEFAULT);
+    }
+
+    public @NotNull Boolean getCompression() {
+        return validateBooleanProperty(SPARKPLUG_COMPRESSION, SPARKPLUG_COMPRESSION_DEFAULT);
+    }
+
+    private Boolean validateBooleanProperty(String key, String defaultValue) {
+        checkNotNull(key, "Key to fetch property must not be null");
+        checkNotNull(defaultValue, "Default value for property must not be null");
+        final String value = getProperty(key);
+        if (value == null) {
+            if (!defaultValue.isEmpty()) {
+                log.warn("No '{}' configured , using default: {}", key, defaultValue);
+            }
+            return Boolean.parseBoolean(defaultValue);
+        }
+        return Boolean.parseBoolean(value);
     }
 
     /**

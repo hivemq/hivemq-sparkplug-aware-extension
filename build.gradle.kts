@@ -20,8 +20,15 @@ hivemqExtension {
     }
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 
 dependencies {
+    implementation("org.eclipse.tahu:tahu-java:${property("tahu.version")}")
+    implementation("com.google.protobuf:protobuf-java:${property("protobuf.version")}")
     implementation("com.google.guava:guava:${property("guava.version")}")
     implementation("org.jetbrains:annotations:${property("jetbrainsAnnotations.version")}")
     implementation("org.apache.commons:commons-lang3:${property("commons-lang3.version")}")
@@ -31,7 +38,7 @@ dependencies {
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit-jupiter.version")}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit-jupiter.version")}")
     testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
 }
 
@@ -39,13 +46,6 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
-/* ******************** integration test ******************** */
-
-dependencies {
-    integrationTestImplementation("com.hivemq:hivemq-mqtt-client:${property("hivemq-mqtt-client.version")}")
-    integrationTestImplementation("com.hivemq:hivemq-testcontainer-junit5:${property("hivemq-testcontainer.version")}")
-    integrationTestRuntimeOnly("ch.qos.logback:logback-classic:${property("logback.version")}")
-}
 
 /* ******************** checks ******************** */
 
