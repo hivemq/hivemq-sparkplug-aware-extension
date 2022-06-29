@@ -57,7 +57,7 @@ license {
 /* ******************** debugging ******************** */
 
 tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(file("/Users/ahelmbre/WorkingGroups/hivemq-4.7.3"))
+    hivemqHomeDirectory.set(file("/your-path-to/hivemq-<distribution>"))
 }
 
 tasks.runHivemqWithExtension {
