@@ -42,6 +42,9 @@ public class SparkplugConfiguration extends PropertiesReader {
     private static final @NotNull String SPARKPLUG_COMPRESSION = "sparkplug.compression";
     private static final @NotNull String SPARKPLUG_COMPRESSION_DEFAULT = "false";
 
+    private static final @NotNull String SPARKPLUG_JSON_LOG_ENABLED = "sparkplug.json.log";
+    private static final @NotNull String SPARKPLUG_JSON_LOG_DEFAULT = "false";
+
     public SparkplugConfiguration(@NotNull final File configFilePath) {
         super(configFilePath);
     }
@@ -58,6 +61,10 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     public @NotNull Boolean getCompression() {
         return validateBooleanProperty(SPARKPLUG_COMPRESSION, SPARKPLUG_COMPRESSION_DEFAULT);
+    }
+
+    public @NotNull Boolean getJsonLogEnabled() {
+        return validateBooleanProperty(SPARKPLUG_JSON_LOG_ENABLED, SPARKPLUG_JSON_LOG_DEFAULT);
     }
 
     private Boolean validateBooleanProperty(String key, String defaultValue) {

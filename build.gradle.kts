@@ -27,7 +27,11 @@ repositories {
 
 
 dependencies {
+    //implementation( files("lib/tahu-core-0.5.15.jar"))
     implementation("org.eclipse.tahu:tahu-java:${property("tahu.version")}")
+    implementation("org.codehaus.jackson:jackson-mapper-asl:${property("mapper.version")}")
+    implementation("com.fasterxml.jackson.core:jackson-core:${property("fasterxml.version")}")
+    implementation( "com.fasterxml.jackson.core:jackson-databind:${property("fasterxml.version")}")
     implementation("com.google.protobuf:protobuf-java:${property("protobuf.version")}")
     implementation("com.google.guava:guava:${property("guava.version")}")
     implementation("org.jetbrains:annotations:${property("jetbrainsAnnotations.version")}")
@@ -57,7 +61,7 @@ license {
 /* ******************** debugging ******************** */
 
 tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(file("/your-path-to/hivemq-<distribution>"))
+    hivemqHomeDirectory.set(file("/Users/ahelmbre/WorkingGroups/hivemq-4.8.2"))
 }
 
 tasks.runHivemqWithExtension {

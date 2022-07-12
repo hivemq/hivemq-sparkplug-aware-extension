@@ -16,8 +16,12 @@
 package com.hivemq.extensions.sparkplug.aware;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
+import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundInput;
+import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundOutput;
+import com.hivemq.extension.sdk.api.packets.publish.ModifiableOutboundPublish;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
 import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.publish.PublishService;
@@ -49,14 +53,18 @@ import static org.mockito.Mockito.*;
  */
 class SparkplugPublishInterceptorTest {
 
+    List<Metric> metrics = new ArrayList<Metric>();
+    byte[] encodedSparkplugPayload;
     private @NotNull SparkplugPublishInterceptor sparkplugPublishInterceptor;
     private @NotNull PublishInboundInput publishInboundInput;
     private @NotNull PublishInboundOutput publishInboundOutput;
+    private @NotNull PublishOutboundInput publishOutboundInput;
+    private @NotNull PublishOutboundOutput publishOutboundOutput;
     private @NotNull ModifiablePublishPacket publishPacket;
     private @NotNull PublishBuilder publishBuilder;
     private @NotNull Path file;
-    List<Metric> metrics = new ArrayList<Metric>();
-    byte[] encodedSparkplugPayload;
+    private @NotNull ModifiableOutboundPublish modifiableOutboundPublish;
+    private @NotNull ClientInformation clientInformation;
 
     @BeforeEach
     void setUp(final @TempDir @NotNull Path tempDir) {
@@ -67,8 +75,17 @@ class SparkplugPublishInterceptorTest {
         sparkplugPublishInterceptor = new SparkplugPublishInterceptor(configuration, publishService, publishBuilder);
         publishInboundInput = mock(PublishInboundInput.class);
         publishInboundOutput = mock(PublishInboundOutput.class);
+        publishOutboundInput = mock(PublishOutboundInput.class);
+        publishOutboundOutput = mock(PublishOutboundOutput.class);
+        modifiableOutboundPublish = mock(ModifiableOutboundPublish.class);
         publishPacket = mock(ModifiablePublishPacket.class);
         when(publishInboundOutput.getPublishPacket()).thenReturn(publishPacket);
+        when(publishOutboundInput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
+
+        when(publishOutboundInput.getPublishPacket()).thenReturn(publishPacket);
+        when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
+
+        clientInformation = mock(ClientInformation.class);
 
         try {
             encodedSparkplugPayload = createSparkplugBPayload();
@@ -81,27 +98,30 @@ class SparkplugPublishInterceptorTest {
     @Test
     void topicSparkplug_published() throws IOException {
         Files.write(file, List.of("sparkplug.version:spBv1.0"));
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/node/item");
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/edgeItem/node");
         sparkplugPublishInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(publishBuilder).topic(captor.capture());
         verify(publishBuilder).retain(true);
-        assertEquals("$sparkplug/certificates/spBv1.0/group/NBIRTH/node/item", captor.getValue());
+        assertEquals("$sparkplug/certificates/spBv1.0/group/NBIRTH/edgeItem/node", captor.getValue());
     }
 
     @Test
     void topicNBIRTH_payloadNotModified() {
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/item");
-        sparkplugPublishInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/edgeItem/node");
+        sparkplugPublishInterceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
         verify(publishPacket, times(0)).setPayload(any());
     }
 
     @Test
     void topicNDEATH_payloadModified() {
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDEATH/edgeItem");
-        when(publishPacket.getPayload()).thenReturn(Optional.of(ByteBuffer.wrap(encodedSparkplugPayload)));
-        sparkplugPublishInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
-        verify(publishPacket, times(1)).setPayload(any());
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDEATH/edgeItem/node");
+        when(modifiableOutboundPublish.getPayload()).thenReturn(Optional.of(ByteBuffer.wrap(encodedSparkplugPayload)));
+        when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
+        when(clientInformation.getClientId()).thenReturn("42");
+        when(publishOutboundInput.getClientInformation()).thenReturn(clientInformation);
+        sparkplugPublishInterceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+        verify(modifiableOutboundPublish, times(1)).setPayload(any());
     }
 
     private byte[] createSparkplugBPayload() throws IOException, SparkplugInvalidTypeException {
@@ -109,7 +129,8 @@ class SparkplugPublishInterceptorTest {
         metrics.add(new Metric.MetricBuilder("a metric", Int32, 42)
                 .timestamp(new Date())
                 .createMetric());
-        SparkplugBPayload sparkplugBPayload = new SparkplugBPayload( new Date(), metrics, 1, null, null);
+        SparkplugBPayload sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, null, null);
         return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload);
     }
+
 }

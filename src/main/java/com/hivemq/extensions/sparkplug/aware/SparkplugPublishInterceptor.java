@@ -24,7 +24,7 @@ import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboun
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundOutput;
 import com.hivemq.extension.sdk.api.packets.general.Qos;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiableOutboundPublish;
-import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
+import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
 import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.publish.PublishService;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
@@ -39,9 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
+
+import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.asJSONFormatted;
+import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.getPayloadAsJSON;
 
 /**
  * {@link PublishInboundInterceptor},
@@ -57,6 +59,7 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor, P
     private final @NotNull String sparkplugVersion;
     private final @NotNull String sysTopic;
     private final Boolean useCompression;
+    private final Boolean jsonLogEnabled;
 
     public SparkplugPublishInterceptor(final @NotNull SparkplugConfiguration configuration,
                                        final @NotNull PublishService publishService,
@@ -64,6 +67,7 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor, P
         this.sparkplugVersion = configuration.getSparkplugVersion();
         this.sysTopic = configuration.getSparkplugSysTopic();
         this.useCompression = configuration.getCompression();
+        this.jsonLogEnabled = configuration.getJsonLogEnabled();
         this.publishService = publishService;
         this.publishBuilder = publishBuilder;
     }
@@ -74,6 +78,7 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor, P
             final @NotNull PublishInboundOutput publishInboundOutput) {
 
         final String origin = publishInboundOutput.getPublishPacket().getTopic();
+        final PublishPacket publishPacket = publishInboundInput.getPublishPacket();
         final TopicStructure topicStructure = new TopicStructure(origin);
 
         if (!topicStructure.isValid(sparkplugVersion)) {
@@ -81,12 +86,19 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor, P
             return;
         }
 
+        if (jsonLogEnabled && publishPacket.getPayload().isPresent()) {
+            log.info("JSON Sparkplug MSG: clientId={}, topic={} payload={}",
+                    publishInboundInput.getClientInformation().getClientId(),
+                    origin,
+                    asJSONFormatted(getPayloadAsJSON(publishPacket.getPayload().get())));
+        }
+
         if (topicStructure.getMessageType() == MessageType.NBIRTH || topicStructure.getMessageType() == MessageType.DBIRTH) {
             //it is a sparkplug publish
             final PublishBuilder myBuilder = publishBuilder;
             try {
                 // Build the publish
-                myBuilder.fromPublish(publishInboundInput.getPublishPacket());
+                myBuilder.fromPublish(publishPacket);
                 myBuilder.topic(sysTopic + origin);
                 myBuilder.qos(Qos.AT_LEAST_ONCE);
                 myBuilder.retain(true);
@@ -108,16 +120,20 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor, P
         }
         if (topicStructure.getMessageType() == MessageType.NDEATH) {
             ModifiableOutboundPublish publishPacket = publishOutboundOutput.getPublishPacket();
-            final ByteBuffer byteBuffer = publishPacket.getPayload().get();
-            try {
-                final ByteBuffer newDeath = modifySparkplugTimestamp(byteBuffer);
-                publishPacket.setPayload(newDeath);
-                log.debug("Modify timestamp of NDEATH message from: {}", topic);
-            } catch (Exception all) {
-                log.error("Modify NDEATH message from {} failed: {}", topic, all.getMessage());
-                if(log.isDebugEnabled()) {
-                    all.printStackTrace();
+            if (publishPacket.getPayload().isPresent()) {
+                final ByteBuffer byteBuffer = publishPacket.getPayload().get();
+                try {
+                    final ByteBuffer newDeath = modifySparkplugTimestamp(byteBuffer);
+                    publishPacket.setPayload(newDeath);
+                    log.debug("Modify timestamp of NDEATH message from: {}", topic);
+                } catch (Exception all) {
+                    log.error("Modify NDEATH message from {} failed: {}", topic, all.getMessage());
+                    if (log.isDebugEnabled()) {
+                        all.printStackTrace();
+                    }
                 }
+                log.warn("No payload present on the Sparkplug message from: {} at {}",
+                        publishOutboundInput.getClientInformation().getClientId(), topic);
             }
         }
     }
