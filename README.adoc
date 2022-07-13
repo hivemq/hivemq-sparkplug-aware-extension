@@ -4,6 +4,7 @@
 :hivemq-support: {hivemq-link}/support/
 :hivemq-testcontainer: https://github.com/hivemq/hivemq-testcontainer
 :hivemq-mqtt-client: https://github.com/hivemq/hivemq-mqtt-client
+:sparkplugRelease: https://github.com/eclipse/sparkplug
 
 = HiveMQ Sparkplug Aware Extension
 
@@ -14,9 +15,9 @@ image:https://img.shields.io/github/workflow/status/hivemq/hivemq-sparkplug-awar
 
 == Purpose
 
-This HiveMQ Sparkplug aware extension has the purpose to fulfil the sparkplug specification to work as a Sparkplug Aware Broker.
+This HiveMQ Sparkplug aware extension has the purpose to fulfil the new  link:https://github.com/eclipse/sparkplug[Sparkplug Release] of the Sparkplug specification extend HiveMQ with the functionality of a Sparkplug Aware Broker.
 
-This includes on top of providing MQTT features like Retained Message handling and all QoS levels the following:
+This includes on top of providing the native HiveMQ MQTT features like Retained Message handling and all QoS levels the following:
 
 * A Sparkplug Aware MQTT Server MUST store NBIRTH and DBIRTH messages as they pass through the MQTT Server
 * A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id`
@@ -24,22 +25,23 @@ This includes on top of providing MQTT features like Retained Message handling a
 * A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id`
 * A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on this topic with the MQTT retain flag set to true
 * A Sparkplug Aware MQTT Server MAY replace the timestamp of NDEATH messages. If it does, it MUST set the timestamp to the UTC time at which it attempts to deliver the NDEATH to subscribed client.
-This Extension registers a PublishInboundInterceptor to forward Sparkplug (N/D)BIRTH certificates as Retained messages to the configured sparkplug system topic.
 
 The topic structure, and the sparkplug version can be configured.
+An optional log output of the payload in formatted JSON can be configured.
 
 *Default properties are:*
 ```
 sparkplug.version:spBv1.0
 sparkplug.systopic:$sparkplug/certificates/
 sparkplug.compression:false
+sparkplug.json.log:false
 ```
 
 == Installation
 
 . Clone this repository into a Java 11 Gradle project.
 . Execute the Gradle task `hivemqExtensionZip` to build the extension.
-. Move the file: `build/hivemq-extension/hivemq-sparkplug-aware-extension-4.8.0.zip` to the directory: `HIVEMQ_HOME/extensions`
+. Move the file: `build/hivemq-extension/hivemq-sparkplug-aware-extension-4.X.X.zip` to the directory: `HIVEMQ_HOME/extensions`
 . Unzip the file.
 . Start HiveMQ.
 
