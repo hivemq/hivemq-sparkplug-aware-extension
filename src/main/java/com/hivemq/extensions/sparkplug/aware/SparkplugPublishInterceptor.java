@@ -86,7 +86,8 @@ public class SparkplugPublishInterceptor implements PublishInboundInterceptor, P
             return;
         }
 
-        if (jsonLogEnabled && publishPacket.getPayload().isPresent()) {
+        if (jsonLogEnabled && publishPacket.getPayload().isPresent()
+                && topicStructure.getMessageType() != MessageType.STATE ) {
             log.info("JSON Sparkplug MSG: clientId={}, topic={} payload={}",
                     publishInboundInput.getClientInformation().getClientId(),
                     origin,

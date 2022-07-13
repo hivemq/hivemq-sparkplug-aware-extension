@@ -27,8 +27,8 @@ repositories {
 
 
 dependencies {
-    //implementation( files("lib/tahu-core-0.5.15.jar"))
-    implementation("org.eclipse.tahu:tahu-java:${property("tahu.version")}")
+    implementation( files("lib/tahu-core-0.5.15.jar"))
+    //implementation("org.eclipse.tahu:tahu-java:${property("tahu.version")}")
     implementation("org.codehaus.jackson:jackson-mapper-asl:${property("mapper.version")}")
     implementation("com.fasterxml.jackson.core:jackson-core:${property("fasterxml.version")}")
     implementation( "com.fasterxml.jackson.core:jackson-databind:${property("fasterxml.version")}")
