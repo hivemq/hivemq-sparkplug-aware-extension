@@ -20,10 +20,9 @@ import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundIntercepto
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.packets.general.Qos;
-import com.hivemq.extension.sdk.api.packets.general.UserProperties;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
 import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
-import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extension.sdk.api.services.builder.Builders;
 import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.publish.Publish;
 import com.hivemq.extension.sdk.api.services.publish.PublishService;
@@ -48,7 +47,6 @@ import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.modifySpar
 public class SparkplugPublishInboundInterceptor implements PublishInboundInterceptor {
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugPublishInboundInterceptor.class);
     private final PublishService publishService;
-    private final PublishBuilder publishBuilder;
     private final @NotNull String sparkplugVersion;
     private final @NotNull String sysTopic;
     private final Boolean useCompression;
@@ -56,14 +54,12 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
     private final Long messageExpiry;
 
     public SparkplugPublishInboundInterceptor(final @NotNull SparkplugConfiguration configuration,
-                                              final @NotNull PublishService publishService,
-                                              final @NotNull PublishBuilder publishBuilder) {
+                                              final @NotNull PublishService publishService) {
         this.sparkplugVersion = configuration.getSparkplugVersion();
         this.sysTopic = configuration.getSparkplugSysTopic();
         this.useCompression = configuration.getCompression();
         this.jsonLogEnabled = configuration.getJsonLogEnabled();
         this.publishService = publishService;
-        this.publishBuilder = publishBuilder;
         this.messageExpiry = configuration.getSparkplugSystopicMsgexpiry();
     }
 
@@ -88,9 +84,8 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
         if (topicStructure.getMessageType() == MessageType.NBIRTH || topicStructure.getMessageType() == MessageType.DBIRTH) {
             //it is a sparkplug publish
             try {
-                //logUserProperties(origin, publishPacket.getUserProperties(), "INBOUND ORIGIN ");
-
                 // Build the publish
+                final PublishBuilder publishBuilder = Builders.publish();
                 publishBuilder.fromPublish(publishPacket);
                 publishBuilder.topic(sysTopic + origin);
                 publishBuilder.qos(Qos.AT_LEAST_ONCE);
@@ -127,31 +122,16 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
         }
     }
 
-    private void publishToSysTopic(String origin, Publish publish) {
+    private void publishToSysTopic(final @NotNull String origin, final @NotNull Publish publish) {
         // Asynchronously sent PUBLISH
+        System.out.println("HHHH");
         final CompletableFuture<Void> future = publishService.publish(publish);
         future.whenComplete((aVoid, throwable) -> {
             if (throwable == null) {
                 log.debug("Published CLONE Msg from: {} to: {} ", origin, sysTopic + origin);
-                //logUserProperties(origin, publish.getUserProperties(), "INBOUND CLONE ");
             } else {
                 log.error("Publish to sysTopic: {} failed: {} ", sysTopic + origin, throwable.fillInStackTrace());
             }
-        });
-    }
-
-    private void logUserProperties(String topic, UserProperties userProperties, String s) {
-        Services.extensionExecutorService().submit(() -> {
-            final StringBuilder b = new StringBuilder();
-            b.append("Msg on topic:" + topic + " has following User Properties: \n");
-            if (userProperties != null && !userProperties.isEmpty()) {
-                userProperties.asList().forEach(u -> {
-                    if (u != null) {
-                        b.append("" + u.getName() + ":" + u.getValue() + "\n");
-                    }
-                });
-            }
-            log.debug(s + b.toString());
         });
     }
 }

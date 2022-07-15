@@ -21,8 +21,6 @@ import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.events.EventRegistry;
 import com.hivemq.extension.sdk.api.parameter.*;
 import com.hivemq.extension.sdk.api.services.Services;
-import com.hivemq.extension.sdk.api.services.builder.Builders;
-import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
 import com.hivemq.extension.sdk.api.services.intializer.InitializerRegistry;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
 import org.slf4j.Logger;
@@ -90,9 +88,8 @@ public class SparkplugAwareMain implements ExtensionMain {
 
     private void addPublishModifier() {
         final InitializerRegistry initializerRegistry = Services.initializerRegistry();
-        final PublishBuilder publishBuilder = Builders.publish();
         final SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor =
-                new SparkplugPublishInboundInterceptor(configuration, Services.publishService(), publishBuilder);
+                new SparkplugPublishInboundInterceptor(configuration, Services.publishService());
         final SparkplugPublishOutboundInterceptor sparkplugPublishOutboundInterceptor =
                 new SparkplugPublishOutboundInterceptor(configuration);
         final SparkplugSubscribeInterceptor sparkplugSubscribeInterceptor =
