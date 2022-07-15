@@ -90,6 +90,8 @@ class SparkplugPublishOutboundInterceptorTest {
     @Test
     void topicNBIRTH_payloadNotModified() {
         when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/edgeItem/node");
+        when(clientInformation.getClientId()).thenReturn("orl");
+        when(publishOutboundInput.getClientInformation()).thenReturn(clientInformation);
         sparkplugPublishOutboundInterceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
         verify(publishPacket, times(0)).setPayload(any());
     }

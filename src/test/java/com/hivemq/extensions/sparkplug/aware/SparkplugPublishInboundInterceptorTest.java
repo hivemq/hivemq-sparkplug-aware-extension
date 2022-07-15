@@ -64,6 +64,7 @@ class SparkplugPublishInboundInterceptorTest {
     private @NotNull PublishBuilder publishBuilder;
     private @NotNull Path file;
     private @NotNull ModifiableOutboundPublish modifiableOutboundPublish;
+    private@NotNull ClientInformation clientInformation;
 
     @BeforeEach
     void setUp(final @TempDir @NotNull Path tempDir) {
@@ -84,6 +85,8 @@ class SparkplugPublishInboundInterceptorTest {
         when(publishOutboundInput.getPublishPacket()).thenReturn(publishPacket);
         when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
 
+        clientInformation = mock(ClientInformation.class);
+
         try {
             encodedSparkplugPayload = createSparkplugBPayload();
         } catch (IOException | SparkplugInvalidTypeException e) {
@@ -96,6 +99,8 @@ class SparkplugPublishInboundInterceptorTest {
     void topicSparkplug_published() throws IOException {
         Files.write(file, List.of("sparkplug.version:spBv1.0"));
         when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/edgeItem/node");
+        when(publishInboundInput.getClientInformation()).thenReturn(clientInformation);
+        when(clientInformation.getClientId()).thenReturn("alf");
         sparkplugPublishInboundInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(publishBuilder).topic(captor.capture());
