@@ -16,18 +16,25 @@
 package com.hivemq.extensions.sparkplug.aware.utils;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
+import com.hivemq.extensions.sparkplug.aware.topics.MessageType;
+import com.hivemq.extensions.sparkplug.aware.topics.TopicStructure;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.tahu.message.PayloadDecoder;
 import org.eclipse.tahu.message.SparkplugBPayloadDecoder;
+import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.SparkplugBPayload;
+import org.eclipse.tahu.util.CompressionAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 public class PayloadUtil {
     private static final @NotNull Logger log = LoggerFactory.getLogger(PayloadUtil.class);
+    private static final CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.GZIP;
 
     public static String asJSONFormatted(String jsonObject) {
         ObjectMapper mapper = new ObjectMapper();
@@ -53,10 +60,52 @@ public class PayloadUtil {
         return "";
     }
 
+    public static SparkplugBPayload getSparkplugBPayload(@NotNull ByteBuffer payload) {
+        try {
+            byte[] bytes = getBytesFromBuffer(payload);
+            PayloadDecoder<SparkplugBPayload> decoder = new SparkplugBPayloadDecoder();
+            SparkplugBPayload sparkplugPayload = decoder.buildFromByteArray(bytes);
+            return sparkplugPayload;
+        } catch (Exception e) {
+            log.error("Failed to parse the sparkplug payload - reason:", e);
+        }
+        return null;
+    }
+
     private static byte[] getBytesFromBuffer(ByteBuffer byteBuffer) {
         byte[] bytes = new byte[byteBuffer.remaining()];
         byteBuffer.get(bytes);
         return bytes;
     }
 
+    public static void logFormattedPayload(String clientId, String origin, PublishPacket publishPacket, TopicStructure topicStructure) {
+        if (publishPacket.getPayload().isPresent()
+                && topicStructure.getMessageType() != MessageType.STATE) {
+
+            log.debug("JSON Sparkplug MSG: clientId={}, topic={} payload={}",
+                    clientId,
+                    origin,
+                    asJSONFormatted(getPayloadAsJSON(publishPacket.getPayload().get())));
+        }
+    }
+
+    public static ByteBuffer modifySparkplugTimestamp(Boolean useCompression, ByteBuffer byteBuffer) throws Exception {
+        SparkplugBPayload inboundPayload = getSparkplugBPayload(byteBuffer);
+        //create the same payload with a new timestamp.
+        SparkplugBPayload payload =
+                new SparkplugBPayload(new Date(),
+                        inboundPayload.getMetrics(),
+                        inboundPayload.getSeq(),
+                        inboundPayload.getUuid(), inboundPayload.getBody());
+
+        SparkplugBPayloadEncoder encoder = new SparkplugBPayloadEncoder();
+        byte[] bytes = null;
+        // Compress payload (optional)
+        if (useCompression) {
+            bytes = encoder.getBytes(org.eclipse.tahu.util.PayloadUtil.compress(payload, compressionAlgorithm));
+        } else {
+            bytes = encoder.getBytes(payload);
+        }
+        return ByteBuffer.wrap(bytes);
+    }
 }

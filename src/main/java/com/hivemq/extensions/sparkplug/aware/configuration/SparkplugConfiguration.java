@@ -45,8 +45,15 @@ public class SparkplugConfiguration extends PropertiesReader {
     private static final @NotNull String SPARKPLUG_JSON_LOG_ENABLED = "sparkplug.json.log";
     private static final @NotNull String SPARKPLUG_JSON_LOG_DEFAULT = "false";
 
+
+    private static final @NotNull String SPARKPLUG_SYSTOPIC_MSGEXPIRY = "sparkplug.systopic.msgExpiry";
+    private static final @NotNull Long SPARKPLUG_SYSTOPIC_MSGEXPIRY_DEFAULT = Long.MAX_VALUE;
+
     public SparkplugConfiguration(@NotNull final File configFilePath) {
         super(configFilePath);
+    }
+    public @NotNull Long getSparkplugSystopicMsgexpiry() {
+        return validateLongProperty(SPARKPLUG_SYSTOPIC_MSGEXPIRY, SPARKPLUG_SYSTOPIC_MSGEXPIRY_DEFAULT, true, false);
     }
 
     @Override
@@ -110,7 +117,7 @@ public class SparkplugConfiguration extends PropertiesReader {
      * @param negativeAllowed use <b>true</b> is property can be negative int
      * @return the actual value of the property if it is set and valid, else the <b>defaultValue</b>
      */
-    private int validateIntProperty(@NotNull final String key, final int defaultValue, final boolean zeroAllowed, final boolean negativeAllowed) {
+    private long validateLongProperty(@NotNull final String key, final long defaultValue, final boolean zeroAllowed, final boolean negativeAllowed) {
         checkNotNull(key, "Key to fetch property must not be null");
 
         final String value = properties != null ? properties.getProperty(key) : null;
@@ -119,25 +126,25 @@ public class SparkplugConfiguration extends PropertiesReader {
             return defaultValue;
         }
 
-        final int valueAsInt;
+        final long valueAsLong;
         try {
-            valueAsInt = Integer.parseInt(value);
+            valueAsLong = Long.parseLong(value);
         } catch (final NumberFormatException e) {
             log.warn("Value for the property '{}' is not a number, original value {}. Using default: {}", key, value, defaultValue);
             return defaultValue;
         }
 
-        if (!zeroAllowed && valueAsInt == 0) {
+        if (!zeroAllowed && valueAsLong == 0) {
             log.warn("Value for the property '{}' can't be zero. Using default: {}", key, defaultValue);
             return defaultValue;
         }
 
-        if (!negativeAllowed && valueAsInt < 0) {
+        if (!negativeAllowed && valueAsLong < 0) {
             log.warn("Value for the property '{}' can't be negative. Using default: {}", key, defaultValue);
             return defaultValue;
         }
 
-        return valueAsInt;
+        return valueAsLong;
     }
 
     public @NotNull String getSparkplugVersion() {

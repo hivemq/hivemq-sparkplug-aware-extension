@@ -91,14 +91,17 @@ public class SparkplugAwareMain implements ExtensionMain {
     private void addPublishModifier() {
         final InitializerRegistry initializerRegistry = Services.initializerRegistry();
         final PublishBuilder publishBuilder = Builders.publish();
-        final SparkplugPublishInterceptor sparkplugPublishInterceptor =
-                new SparkplugPublishInterceptor(configuration, Services.publishService(), publishBuilder);
+        final SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor =
+                new SparkplugPublishInboundInterceptor(configuration, Services.publishService(), publishBuilder);
+        final SparkplugPublishOutboundInterceptor sparkplugPublishOutboundInterceptor =
+                new SparkplugPublishOutboundInterceptor(configuration);
         final SparkplugSubscribeInterceptor sparkplugSubscribeInterceptor =
                 new SparkplugSubscribeInterceptor(configuration);
 
         initializerRegistry.setClientInitializer(
                 (initializerInput, clientContext) -> {
-                    clientContext.addPublishInboundInterceptor(sparkplugPublishInterceptor);
+                    clientContext.addPublishInboundInterceptor(sparkplugPublishInboundInterceptor);
+                    clientContext.addPublishOutboundInterceptor(sparkplugPublishOutboundInterceptor);
                     clientContext.addSubscribeInboundInterceptor(sparkplugSubscribeInterceptor);
                 });
     }
