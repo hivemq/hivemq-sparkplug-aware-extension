@@ -57,7 +57,10 @@ public class SparkplugPublishOutboundInterceptor implements PublishOutboundInter
     public void onOutboundPublish(@NotNull PublishOutboundInput publishOutboundInput, @NotNull PublishOutboundOutput publishOutboundOutput) {
         final @NotNull String topic = publishOutboundInput.getPublishPacket().getTopic();
         final @NotNull String clientId = publishOutboundInput.getClientInformation().getClientId();
-        log.trace("OUTBOUND PUBLISH at: {} to: {} ", topic, clientId);
+
+        if (log.isTraceEnabled()) {
+            log.trace("OUTBOUND PUBLISH at: {} to: {} ", topic, clientId);
+        }
 
         final TopicStructure topicStructure = new TopicStructure(topic);
         if (!topicStructure.isValid(sparkplugVersion)) {
@@ -66,14 +69,16 @@ public class SparkplugPublishOutboundInterceptor implements PublishOutboundInter
         }
 
         if (topicStructure.getMessageType() == MessageType.NDEATH) {
-             final ModifiableOutboundPublish publishPacket = publishOutboundOutput.getPublishPacket();
-             if (publishPacket.getPayload().isPresent()) {
+            final ModifiableOutboundPublish publishPacket = publishOutboundOutput.getPublishPacket();
+            if (publishPacket.getPayload().isPresent()) {
                  try {
                      final ByteBuffer newDeath = modifySparkplugTimestamp(useCompression, publishPacket.getPayload().get());
                      publishPacket.setPayload(newDeath);
-                     log.debug("Modify timestamp of NDEATH message from: {}", topic);
-                     if( jsonLogEnabled) {
-                         logFormattedPayload(clientId,topic,publishPacket,topicStructure);
+                     if (log.isTraceEnabled()) {
+                         log.trace("Modify timestamp of NDEATH message from: {}", topic);
+                     }
+                     if (jsonLogEnabled) {
+                         logFormattedPayload(clientId, topic, publishPacket, topicStructure);
                      }
                  } catch (Exception all) {
                      log.error("Modify NDEATH message from {} failed: {}", topic, all.getMessage());

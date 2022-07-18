@@ -74,7 +74,9 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
         final @NotNull String origin = publishInboundOutput.getPublishPacket().getTopic();
         final @NotNull TopicStructure topicStructure = new TopicStructure(origin);
 
-        log.trace("INBOUND PUBLISH at: {} from: {}", origin, clientId);
+        if (log.isTraceEnabled()) {
+            log.trace("INBOUND PUBLISH at: {} from: {}", origin, clientId);
+        }
 
         if (!topicStructure.isValid(sparkplugVersion)) {
             //skip it is not a sparkplug publish
@@ -106,7 +108,9 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
                 try {
                     final ByteBuffer newDeath = modifySparkplugTimestamp(useCompression, byteBuffer);
                     modifiablePublishPacket.setPayload(newDeath);
-                    log.debug("Modify timestamp of NDEATH message from: {}", origin);
+                    if (log.isTraceEnabled()) {
+                        log.trace("Modify timestamp of NDEATH message from: {}", origin);
+                    }
                 } catch (Exception all) {
                     log.error("Modify NDEATH message from {} failed: {}", origin, all.getMessage());
                     if (log.isTraceEnabled()) {
@@ -124,11 +128,12 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
 
     private void publishToSysTopic(final @NotNull String origin, final @NotNull Publish publish) {
         // Asynchronously sent PUBLISH
-        System.out.println("HHHH");
         final CompletableFuture<Void> future = publishService.publish(publish);
         future.whenComplete((aVoid, throwable) -> {
             if (throwable == null) {
-                log.debug("Published CLONE Msg from: {} to: {} ", origin, sysTopic + origin);
+                if (log.isTraceEnabled()) {
+                    log.trace("Published CLONE Msg from: {} to: {} ", origin, sysTopic + origin);
+                }
             } else {
                 log.error("Publish to sysTopic: {} failed: {} ", sysTopic + origin, throwable.fillInStackTrace());
             }
