@@ -82,7 +82,7 @@ public class PayloadUtil {
         if (publishPacket.getPayload().isPresent()
                 && topicStructure.getMessageType() != MessageType.STATE) {
 
-            log.debug("JSON Sparkplug MSG: clientId={}, topic={} payload={}",
+            log.info("JSON Sparkplug MSG: clientId={}, topic={} payload={}",
                     clientId,
                     origin,
                     asJSONFormatted(getPayloadAsJSON(publishPacket.getPayload().get())));

@@ -18,7 +18,6 @@ package com.hivemq.extensions.sparkplug.aware;
 import com.hivemq.extension.sdk.api.ExtensionMain;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
-import com.hivemq.extension.sdk.api.events.EventRegistry;
 import com.hivemq.extension.sdk.api.parameter.*;
 import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extension.sdk.api.services.intializer.InitializerRegistry;
@@ -53,7 +52,6 @@ public class SparkplugAwareMain implements ExtensionMain {
                 return;
             }
 
-            addClientLifecycleEventListener();
             addPublishModifier();
 
             final ExtensionInformation extensionInformation = extensionStartInput.getExtensionInformation();
@@ -80,12 +78,6 @@ public class SparkplugAwareMain implements ExtensionMain {
         log.info("Stopped " + extensionInformation.getName() + ":" + extensionInformation.getVersion());
     }
 
-    private void addClientLifecycleEventListener() {
-        final EventRegistry eventRegistry = Services.eventRegistry();
-        final SparkplugAwareListener sparkplugAwareListener = new SparkplugAwareListener();
-        eventRegistry.setClientLifecycleEventListener(input -> sparkplugAwareListener);
-    }
-
     private void addPublishModifier() {
         final InitializerRegistry initializerRegistry = Services.initializerRegistry();
         final SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor =
@@ -105,7 +97,7 @@ public class SparkplugAwareMain implements ExtensionMain {
 
     private boolean configurationValidated(
             final @NotNull ExtensionStartOutput extensionStartOutput, final @NotNull File extensionHomeFolder) {
-        boolean isValid = false;
+        boolean isValid;
         configuration = new SparkplugConfiguration(extensionHomeFolder);
         try {
             isValid = configuration.readPropertiesFromFile();
