@@ -16,44 +16,22 @@
 package com.hivemq.extensions.sparkplug.aware;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
-import com.hivemq.extension.sdk.api.interceptor.publish.PublishOutboundInterceptor;
-import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
-import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
-import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundInput;
-import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundOutput;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.SubscribeInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.parameter.SubscribeInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.parameter.SubscribeInboundOutput;
-import com.hivemq.extension.sdk.api.packets.general.Qos;
-import com.hivemq.extension.sdk.api.packets.publish.ModifiableOutboundPublish;
 import com.hivemq.extension.sdk.api.packets.subscribe.ModifiableSubscription;
-import com.hivemq.extension.sdk.api.packets.subscribe.Subscription;
-import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
-import com.hivemq.extension.sdk.api.services.publish.PublishService;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
-import com.hivemq.extensions.sparkplug.aware.topics.MessageType;
-import com.hivemq.extensions.sparkplug.aware.topics.TopicStructure;
-import org.eclipse.tahu.message.SparkplugBPayloadDecoder;
-import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
-import org.eclipse.tahu.message.model.SparkplugBPayload;
-import org.eclipse.tahu.util.CompressionAlgorithm;
-import org.eclipse.tahu.util.PayloadUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * {@link SparkplugSubscribeInterceptor},
  * The standard behavior for sys topics is following:
- *  if a subscriber exist - retained message will be published as not retained  - live publish
- *  if no subscriber exist - retained message will be published as retained
- *
+ * if a subscriber exist - retained message will be published as not retained  - live publish
+ * if no subscriber exist - retained message will be published as retained
+ * <p>
  * The Interceptor modifies subscriptions
- *  Subscriptions for the sys topic will be modified, so that the retained flag will be handled as it is published.
+ * Subscriptions for the sys topic will be modified, so that the retained flag will be handled as it is published.
  *
  * @since 4.3.1
  */
@@ -68,15 +46,14 @@ public class SparkplugSubscribeInterceptor implements SubscribeInboundIntercepto
     @Override
     public void onInboundSubscribe(@NotNull SubscribeInboundInput subscribeInboundInput, @NotNull SubscribeInboundOutput subscribeInboundOutput) {
         final String clientID = subscribeInboundInput.getClientInformation().getClientId();
-        for( ModifiableSubscription subscription : subscribeInboundOutput.getSubscribePacket().getSubscriptions() ){
-            if( subscription.getTopicFilter().startsWith(this.sysTopic)) {
+        for (ModifiableSubscription subscription : subscribeInboundOutput.getSubscribePacket().getSubscriptions()) {
+            if (subscription.getTopicFilter().startsWith(this.sysTopic)) {
                 log.debug("Modify Subscribe - to have retained as published {} from Client {}",
-                        subscription.getTopicFilter() , clientID);
+                        subscription.getTopicFilter(), clientID);
                 subscription.setRetainAsPublished(true);
             }
         }
     }
-
 
 
 }
