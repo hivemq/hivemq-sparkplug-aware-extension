@@ -25,6 +25,7 @@ import org.eclipse.tahu.message.SparkplugBPayloadDecoder;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.SparkplugBPayload;
 import org.eclipse.tahu.util.CompressionAlgorithm;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,60 +35,8 @@ import java.util.Date;
 
 public class PayloadUtil {
     private static final @NotNull Logger log = LoggerFactory.getLogger(PayloadUtil.class);
+    private static final @NotNull Logger jsonLog = LoggerFactory.getLogger("com.hivemq.extensions.sparkplug.jsonLog");
     private static final CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.GZIP;
-
-    public static String asJSONFormatted(String jsonObject) {
-        ObjectMapper mapper = new ObjectMapper();
-        String result;
-        try {
-            Object json = mapper.readValue(jsonObject, Object.class);
-            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-        } catch (IOException ex) {
-            result = "*** PAYLOAD IS NOT VALID JSON DATA *** \n\n" + ex.getMessage();
-        }
-        return result;
-    }
-
-    public static String getPayloadAsJSON(@NotNull ByteBuffer payload) {
-        try {
-            byte[] bytes = getBytesFromBuffer(payload);
-            PayloadDecoder<SparkplugBPayload> decoder = new SparkplugBPayloadDecoder();
-            SparkplugBPayload sparkplugPayload = decoder.buildFromByteArray(bytes);
-            return org.eclipse.tahu.util.PayloadUtil.toJsonString(sparkplugPayload);
-        } catch (Exception e) {
-            log.error("Failed to parse the sparkplug payload - reason:", e);
-        }
-        return "";
-    }
-
-    public static SparkplugBPayload getSparkplugBPayload(@NotNull ByteBuffer payload) {
-        try {
-            byte[] bytes = getBytesFromBuffer(payload);
-            PayloadDecoder<SparkplugBPayload> decoder = new SparkplugBPayloadDecoder();
-            SparkplugBPayload sparkplugPayload = decoder.buildFromByteArray(bytes);
-            return sparkplugPayload;
-        } catch (Exception e) {
-            log.error("Failed to parse the sparkplug payload - reason:", e);
-        }
-        return null;
-    }
-
-    private static byte[] getBytesFromBuffer(ByteBuffer byteBuffer) {
-        byte[] bytes = new byte[byteBuffer.remaining()];
-        byteBuffer.get(bytes);
-        return bytes;
-    }
-
-    public static void logFormattedPayload(String clientId, String origin, PublishPacket publishPacket, TopicStructure topicStructure) {
-        if (publishPacket.getPayload().isPresent()
-                && topicStructure.getMessageType() != MessageType.STATE) {
-
-            log.info("JSON Sparkplug MSG: clientId={}, topic={} payload={}",
-                    clientId,
-                    origin,
-                    asJSONFormatted(getPayloadAsJSON(publishPacket.getPayload().get())));
-        }
-    }
 
     public static ByteBuffer modifySparkplugTimestamp(Boolean useCompression, ByteBuffer byteBuffer) throws Exception {
         SparkplugBPayload inboundPayload = getSparkplugBPayload(byteBuffer);
@@ -108,4 +57,57 @@ public class PayloadUtil {
         }
         return ByteBuffer.wrap(bytes);
     }
+
+    public static void logFormattedPayload(String clientId, String origin, PublishPacket publishPacket, TopicStructure topicStructure) {
+        if (publishPacket.getPayload().isPresent() && topicStructure.getMessageType() != MessageType.STATE) {
+            jsonLog.info("JSON Sparkplug MSG: clientId={}, topic={} payload={}",
+                    clientId,
+                    origin,
+                    asJSONFormatted(getPayloadAsJSON(publishPacket.getPayload().get())));
+        }
+    }
+
+    @VisibleForTesting
+    public static String asJSONFormatted(String jsonObject) {
+        final @NotNull ObjectMapper mapper = new ObjectMapper();
+        @NotNull String result;
+        try {
+            Object json = mapper.readValue(jsonObject, Object.class);
+            result = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+        } catch (IOException ex) {
+            result = "*** PAYLOAD IS NOT VALID JSON DATA *** \n\n" + ex.getMessage();
+        }
+        return result;
+    }
+
+    @VisibleForTesting
+    public static String getPayloadAsJSON(@NotNull ByteBuffer payload) {
+        try {
+            byte[] bytes = getBytesFromBuffer(payload);
+            PayloadDecoder<SparkplugBPayload> decoder = new SparkplugBPayloadDecoder();
+            SparkplugBPayload sparkplugPayload = decoder.buildFromByteArray(bytes);
+            return org.eclipse.tahu.util.PayloadUtil.toJsonString(sparkplugPayload);
+        } catch (Exception e) {
+            jsonLog.error("Failed to parse the sparkplug payload - reason:", e);
+        }
+        return "";
+    }
+
+    private static SparkplugBPayload getSparkplugBPayload(@NotNull ByteBuffer payload) {
+        try {
+            byte[] bytes = getBytesFromBuffer(payload);
+            PayloadDecoder<SparkplugBPayload> decoder = new SparkplugBPayloadDecoder();
+            return decoder.buildFromByteArray(bytes);
+        } catch (Exception e) {
+            log.error("Failed to parse the sparkplug payload - reason:", e);
+        }
+        return null;
+    }
+
+    private static byte[] getBytesFromBuffer(ByteBuffer byteBuffer) {
+        byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);
+        return bytes;
+    }
+
 }
