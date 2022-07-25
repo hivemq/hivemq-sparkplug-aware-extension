@@ -13,6 +13,8 @@ image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-compatible
 image:https://img.shields.io/github/license/hivemq/hivemq-sparkplug-compatible-extension?style=for-the-badge&color=brightgreen[GitHub,link=LICENSE]
 image:https://img.shields.io/github/workflow/status/hivemq/hivemq-sparkplug-compatible-extension/CI%20Check/master?style=for-the-badge[GitHub Workflow Status (branch),link=https://github.com/hivemq/hivemq-sparkplug-compatible-extension/actions/workflows/check.yml?query=branch%3Amaster]
 
+*This extension is not yet ready for production use.*
+
 == Purpose
 
 This HiveMQ Sparkplug aware extension has the purpose to fulfil the new  link:https://github.com/eclipse/sparkplug[Sparkplug Release] of the Sparkplug specification extend HiveMQ with the functionality of a Sparkplug Aware Broker wich is an optional Requirement.
