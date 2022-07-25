@@ -61,11 +61,11 @@ license {
 /* ******************** debugging ******************** */
 
 tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(file("/Users/ahelmbre/WorkingGroups/hivemq-4.8.2"))
+    hivemqHomeDirectory.set(file("/your/path/to/hivemq-4.X.X"))
 }
 
 tasks.runHivemqWithExtension {
-    environment["HIVEMQ_LOG_LEVEL"] = "DEBUG"
+    environment["HIVEMQ_LOG_LEVEL"] = "INFO"
     debugOptions {
         enabled.set(false)
     }
