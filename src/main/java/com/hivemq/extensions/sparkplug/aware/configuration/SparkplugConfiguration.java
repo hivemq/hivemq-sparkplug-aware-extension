@@ -47,7 +47,7 @@ public class SparkplugConfiguration extends PropertiesReader {
 
 
     private static final @NotNull String SPARKPLUG_SYSTOPIC_MSGEXPIRY = "sparkplug.systopic.msgExpiry";
-    private static final @NotNull Long SPARKPLUG_SYSTOPIC_MSGEXPIRY_DEFAULT = Long.MAX_VALUE;
+    private static final @NotNull Long SPARKPLUG_SYSTOPIC_MSGEXPIRY_DEFAULT = 4294967296L;
 
     public SparkplugConfiguration(@NotNull final File configFilePath) {
         super(configFilePath);

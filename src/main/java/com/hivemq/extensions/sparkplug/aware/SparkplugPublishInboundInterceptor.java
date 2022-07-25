@@ -121,6 +121,7 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
                 log.warn("No payload present in the sparkplug message");
             }
         }
+
         if (jsonLogEnabled) {
             logFormattedPayload(clientId, origin, publishPacket, topicStructure);
         }
