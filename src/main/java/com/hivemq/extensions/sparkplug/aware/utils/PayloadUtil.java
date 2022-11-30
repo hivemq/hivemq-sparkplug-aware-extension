@@ -51,9 +51,9 @@ public class PayloadUtil {
         byte[] bytes = null;
         // Compress payload (optional)
         if (useCompression) {
-            bytes = encoder.getBytes(org.eclipse.tahu.util.PayloadUtil.compress(payload, compressionAlgorithm));
+            bytes = encoder.getBytes(org.eclipse.tahu.util.PayloadUtil.compress(payload, compressionAlgorithm, false), false);
         } else {
-            bytes = encoder.getBytes(payload);
+            bytes = encoder.getBytes(payload, false);
         }
         return ByteBuffer.wrap(bytes);
     }
