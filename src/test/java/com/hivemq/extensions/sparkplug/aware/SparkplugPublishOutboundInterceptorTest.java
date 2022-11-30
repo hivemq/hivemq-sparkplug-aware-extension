@@ -113,7 +113,7 @@ class SparkplugPublishOutboundInterceptorTest {
                 .timestamp(new Date())
                 .createMetric());
         SparkplugBPayload sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, "alf", null);
-        return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload);
+        return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload,false);
     }
 
 }

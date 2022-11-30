@@ -104,7 +104,7 @@ class SparkplugSubscribeInterceptorTest {
                 .timestamp(new Date())
                 .createMetric());
         SparkplugBPayload sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, null, null);
-        return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload);
+        return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload, false);
     }
 
 }
