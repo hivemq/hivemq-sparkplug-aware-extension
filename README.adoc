@@ -9,7 +9,7 @@
 = HiveMQ Sparkplug Aware Extension
 
 image:https://img.shields.io/badge/Extension_Type-Public-orange?style=for-the-badge[Extension Type]
-image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-aware-extension?style=for-the-badge[GitHub release (latest by date),link=https://github.com/hivemq/hivemq-sparkplug-compatible-extension/releases/latest]
+image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-aware-extension?style=for-the-badge[GitHub release (latest by date),link=https://github.com/hivemq/hivemq-sparkplug-aware-extension/releases/latest]
 image:https://img.shields.io/github/license/hivemq/hivemq-sparkplug-aware-extension?style=for-the-badge&color=brightgreen[GitHub,link=LICENSE]
 image:https://img.shields.io/github/actions/workflow/status/hivemq/hivemq-sparkplug-aware-extension/check.yml?branch=master&style=for-the-badge[GitHub Workflow Status,link=https://github.com/hivemq/hivemq-sparkplug-aware-extension/actions/workflows/check.yml?query=branch%3Amaster]
 
@@ -62,7 +62,7 @@ With this, the sparkplug payload will be written as json into the separate file 
 
 . Clone this repository into a Java 11 Gradle project.
 . Execute the Gradle task `hivemqExtensionZip` to build the extension.
-. Move the file: `build/hivemq-extension/hivemq-sparkplug-compatible-extension-4.X.X.zip` to the directory: `HIVEMQ_HOME/extensions`
+. Move the file: `build/hivemq-extension/hivemq-sparkplug-aware-extension-4.X.X.zip` to the directory: `HIVEMQ_HOME/extensions`
 . Unzip the file.
 . Start HiveMQ.
 
