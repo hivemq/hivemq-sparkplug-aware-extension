@@ -1,6 +1,7 @@
 [versions]
 commonsLang = "3.8.1"
 guava = "31.1-jre"
+hivemq-extensionSdk = "4.9.1"
 jackson = "2.13.2"
 jacksonv1 = "1.9.13"
 jetbrains-annotations = "21.0.1"
