@@ -13,7 +13,7 @@ hivemqExtension {
     priority.set(1000)
     startPriority.set(1000)
     mainClass.set("$group.SparkplugAwareMain")
-    sdkVersion.set("$version")
+    sdkVersion.set(libs.versions.hivemq.extensionSdk)
 
     resources {
         from("LICENSE")
@@ -21,7 +21,6 @@ hivemqExtension {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
@@ -53,17 +52,4 @@ testing {
 license {
     header = rootDir.resolve("HEADER")
     mapping("java", "SLASHSTAR_STYLE")
-}
-
-/* ******************** debugging ******************** */
-
-tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(file("/your/path/to/hivemq-4.X.X"))
-}
-
-tasks.runHivemqWithExtension {
-    environment["HIVEMQ_LOG_LEVEL"] = "INFO"
-    debugOptions {
-        enabled.set(false)
-    }
 }
