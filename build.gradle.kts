@@ -25,13 +25,13 @@ repositories {
 }
 
 dependencies {
+    compileOnly(libs.jetbrains.annotations)
     implementation(libs.tahu)
     implementation(libs.jackson.mapper.asl)
     implementation(libs.jackson)
     implementation(libs.jackson.databind)
     implementation(libs.protobuf)
     implementation(libs.guava)
-    implementation(libs.jetbrains.annotations)
     implementation(libs.commonsLang)
 }
 
