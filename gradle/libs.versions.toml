@@ -1,0 +1,28 @@
+[versions]
+commonsLang = "3.8.1"
+guava = "31.1-jre"
+jackson = "2.13.2"
+jacksonv1 = "1.9.13"
+jetbrains-annotations = "21.0.1"
+junit-jupiter = "5.8.1"
+mockito = "4.0.0"
+protobuf = "3.17.3"
+tahu = "1.0.0"
+
+[libraries]
+commonsLang = { module = "org.apache.commons:commons-lang3", version.ref = "commonsLang" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+jackson = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-mapper-asl = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jacksonv1" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
+tahu = { module = "org.eclipse.tahu:tahu-core", version.ref = "tahu" }
+
+[plugins]
+hivemq-extension = { id = "com.hivemq.extension", version = "3.1.0" }
+defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
+license = { id = "com.github.hierynomus.license", version = "0.16.1" }
