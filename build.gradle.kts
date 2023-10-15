@@ -25,7 +25,6 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
     implementation(libs.tahu)
     implementation(libs.jackson.mapper.asl)
@@ -37,20 +36,19 @@ dependencies {
     implementation(libs.commonsLang)
 }
 
-/* ******************** test ******************** */
-
-dependencies {
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testImplementation(libs.mockito)
+@Suppress("UnstableApiUsage")
+testing {
+    suites {
+        withType<JvmTestSuite> {
+            useJUnitJupiter(libs.versions.junit.jupiter)
+        }
+        "test"(JvmTestSuite::class) {
+            dependencies {
+                implementation(libs.mockito)
+            }
+        }
+    }
 }
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
-
-
-/* ******************** checks ******************** */
 
 license {
     header = rootDir.resolve("HEADER")
