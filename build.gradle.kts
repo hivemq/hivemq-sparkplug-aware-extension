@@ -1,7 +1,7 @@
 plugins {
-    id("com.hivemq.extension")
-    id("com.github.hierynomus.license")
-    id("io.github.sgtsilvio.gradle.defaults")
+    alias(libs.plugins.hivemq.extension)
+    alias(libs.plugins.defaults)
+    alias(libs.plugins.license)
 }
 
 group = "com.hivemq.extensions.sparkplug.aware"
@@ -27,22 +27,22 @@ repositories {
 
 
 dependencies {
-    implementation("org.eclipse.tahu:tahu-core:${property("tahu.version")}")
-    implementation("org.codehaus.jackson:jackson-mapper-asl:${property("mapper.version")}")
-    implementation("com.fasterxml.jackson.core:jackson-core:${property("fasterxml.version")}")
-    implementation( "com.fasterxml.jackson.core:jackson-databind:${property("fasterxml.version")}")
-    implementation("com.google.protobuf:protobuf-java:${property("protobuf.version")}")
-    implementation("com.google.guava:guava:${property("guava.version")}")
-    implementation("org.jetbrains:annotations:${property("jetbrainsAnnotations.version")}")
-    implementation("org.apache.commons:commons-lang3:${property("commons-lang3.version")}")
+    implementation(libs.tahu)
+    implementation(libs.jackson.mapper.asl)
+    implementation(libs.jackson)
+    implementation(libs.jackson.databind)
+    implementation(libs.protobuf)
+    implementation(libs.guava)
+    implementation(libs.jetbrains.annotations)
+    implementation(libs.commonsLang)
 }
 
 /* ******************** test ******************** */
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${property("junit-jupiter.version")}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${property("junit-jupiter.version")}")
-    testImplementation("org.mockito:mockito-core:${property("mockito.version")}")
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.mockito)
 }
 
 tasks.withType<Test>().configureEach {
