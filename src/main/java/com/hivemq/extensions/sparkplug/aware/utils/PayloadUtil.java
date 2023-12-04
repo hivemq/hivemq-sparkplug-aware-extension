@@ -33,13 +33,20 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
-public class PayloadUtil {
+public final class PayloadUtil {
     private static final @NotNull Logger log = LoggerFactory.getLogger(PayloadUtil.class);
     private static final @NotNull Logger jsonLog = LoggerFactory.getLogger("com.hivemq.extensions.sparkplug.jsonLog");
     private static final CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.GZIP;
 
-    public static ByteBuffer modifySparkplugTimestamp(Boolean useCompression, ByteBuffer byteBuffer) throws Exception {
-        SparkplugBPayload inboundPayload = getSparkplugBPayload(byteBuffer);
+    PayloadUtil(){
+    }
+
+    public static ByteBuffer modifySparkplugTimestamp(boolean useCompression, ByteBuffer byteBuffer) throws Exception {
+        final SparkplugBPayload inboundPayload = getSparkplugBPayload(byteBuffer);
+        if (inboundPayload == null) {
+            throw new IllegalArgumentException("Unable to get Sparkplug B Payload from byte buffer.");
+        }
+
         //create the same payload with a new timestamp.
         SparkplugBPayload payload =
                 new SparkplugBPayload(new Date(),

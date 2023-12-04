@@ -55,7 +55,7 @@ public class SparkplugAwareMain implements ExtensionMain {
             addPublishModifier();
 
             final ExtensionInformation extensionInformation = extensionStartInput.getExtensionInformation();
-            log.info("Started " + extensionInformation.getName() + ":" + extensionInformation.getVersion());
+            log.info("Started {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
 
             log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_TOPIC);
             log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_RETAIN);
@@ -75,7 +75,7 @@ public class SparkplugAwareMain implements ExtensionMain {
             final @NotNull ExtensionStopOutput extensionStopOutput) {
 
         final ExtensionInformation extensionInformation = extensionStopInput.getExtensionInformation();
-        log.info("Stopped " + extensionInformation.getName() + ":" + extensionInformation.getVersion());
+        log.info("Stopped {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
     }
 
     private void addPublishModifier() {

@@ -49,8 +49,8 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
     private final PublishService publishService;
     private final @NotNull String sparkplugVersion;
     private final @NotNull String sysTopic;
-    private final Boolean useCompression;
-    private final Boolean jsonLogEnabled;
+    private final boolean useCompression;
+    private final boolean jsonLogEnabled;
     private final Long messageExpiry;
 
     public SparkplugPublishInboundInterceptor(final @NotNull SparkplugConfiguration configuration,
