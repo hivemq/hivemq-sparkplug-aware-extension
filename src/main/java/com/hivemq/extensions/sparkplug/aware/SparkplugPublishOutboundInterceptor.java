@@ -44,8 +44,8 @@ public class SparkplugPublishOutboundInterceptor implements PublishOutboundInter
     private static final CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.GZIP;
      private final @NotNull String sparkplugVersion;
 
-    private final Boolean useCompression;
-    private final Boolean jsonLogEnabled;
+    private final boolean useCompression;
+    private final boolean jsonLogEnabled;
 
     public SparkplugPublishOutboundInterceptor(final @NotNull SparkplugConfiguration configuration) {
         this.sparkplugVersion = configuration.getSparkplugVersion();
