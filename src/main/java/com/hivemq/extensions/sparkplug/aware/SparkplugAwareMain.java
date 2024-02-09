@@ -98,7 +98,7 @@ public class SparkplugAwareMain implements ExtensionMain {
     private boolean configurationValidated(
             final @NotNull ExtensionStartOutput extensionStartOutput, final @NotNull File extensionHomeFolder) {
         boolean isValid;
-        configuration = new SparkplugConfiguration(extensionHomeFolder);
+        configuration = new SparkplugConfiguration(new File(extensionHomeFolder, "conf"));
         try {
             isValid = configuration.readPropertiesFromFile();
             configuration.getSparkplugVersion();

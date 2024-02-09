@@ -31,7 +31,7 @@ If it does, it MUST set the timestamp to the UTC time at which it attempts to de
 
 == Configuration
 
-The Extension expects the configuration file `sparkplug.properties` in the extension home folder.
+The Extension expects the configuration file `conf/sparkplug.properties` in the extension home folder.
 This configuration file contains a set of properties to align the behavior of the extension.
 
 The topic structure root for the systopic, and the sparkplug version can be configured.
@@ -53,7 +53,7 @@ sparkplug.systopic.msgExpiry=4294967296
 
 == JSON Logging configuration
 
-When using logger sparkplug.json.log, add the configuration settings `appender` and `logger` from the `src/hivemq-extension/logback-example.xml` file to your `hivemq/conf/logback.xml` configuration.
+When using logger sparkplug.json.log, add the configuration settings `appender` and `logger` from the `src/hivemq-extension/conf/logback-example.xml` file to your `hivemq/conf/logback.xml` configuration.
 With this, the sparkplug payload will be written as json into the separate file `hivemq/log/sparkplug-json-payload.log`.
 
 == Installation
