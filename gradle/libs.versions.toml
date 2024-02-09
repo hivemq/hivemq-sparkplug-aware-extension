@@ -1,7 +1,7 @@
 [versions]
 commonsLang = "3.8.1"
 guava = "31.1-jre"
-hivemq-extensionSdk = "4.22.0"
+hivemq-extensionSdk = "4.24.0"
 jackson = "2.13.2"
 jacksonv1 = "1.9.13"
 jetbrains-annotations = "24.0.1"
@@ -25,3 +25,4 @@ tahu = { module = "org.eclipse.tahu:tahu-core", version.ref = "tahu" }
 hivemq-extension = { id = "com.hivemq.extension", version = "3.1.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 license = { id = "com.github.hierynomus.license", version = "0.16.1" }
+checksum = { id = "org.gradle.crypto.checksum", version = "1.4.0"}

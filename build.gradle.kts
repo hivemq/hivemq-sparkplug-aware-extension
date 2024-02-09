@@ -1,7 +1,10 @@
+import org.gradle.crypto.checksum.Checksum
+
 plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.defaults)
     alias(libs.plugins.license)
+    alias(libs.plugins.checksum)
 }
 
 group = "com.hivemq.extensions.sparkplug.aware"
@@ -17,6 +20,17 @@ hivemqExtension {
     resources {
         from("LICENSE")
     }
+}
+
+task<Checksum>("checksum") {
+    dependsOn("hivemqExtensionZip")
+    checksumAlgorithm.set(Checksum.Algorithm.SHA256)
+    inputFiles.setFrom(
+        files(
+            tasks.hivemqExtensionZip.get().outputs.files
+        )
+    )
+    outputDirectory.set(file("${layout.buildDirectory.get()}/hivemq-extension"))
 }
 
 repositories {
