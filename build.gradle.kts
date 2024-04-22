@@ -22,12 +22,6 @@ hivemqExtension {
     }
 }
 
-tasks.register<Checksum>("checksum") {
-    checksumAlgorithm.set(Checksum.Algorithm.SHA256)
-    inputFiles.from(tasks.hivemqExtensionZip)
-    outputDirectory = layout.buildDirectory.dir("hivemq-extension")
-}
-
 repositories {
     mavenCentral()
 }
@@ -41,6 +35,12 @@ dependencies {
     implementation(libs.protobuf)
     implementation(libs.guava)
     implementation(libs.commonsLang)
+}
+
+tasks.register<Checksum>("checksum") {
+    checksumAlgorithm.set(Checksum.Algorithm.SHA256)
+    inputFiles.from(tasks.hivemqExtensionZip)
+    outputDirectory = layout.buildDirectory.dir("hivemq-extension")
 }
 
 @Suppress("UnstableApiUsage")
