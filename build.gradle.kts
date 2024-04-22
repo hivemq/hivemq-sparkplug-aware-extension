@@ -22,15 +22,10 @@ hivemqExtension {
     }
 }
 
-task<Checksum>("checksum") {
-    dependsOn("hivemqExtensionZip")
+tasks.register<Checksum>("checksum") {
     checksumAlgorithm.set(Checksum.Algorithm.SHA256)
-    inputFiles.setFrom(
-        files(
-            tasks.hivemqExtensionZip.get().outputs.files
-        )
-    )
-    outputDirectory.set(file("${layout.buildDirectory.get()}/hivemq-extension"))
+    inputFiles.from(tasks.hivemqExtensionZip)
+    outputDirectory = layout.buildDirectory.dir("hivemq-extension")
 }
 
 repositories {
