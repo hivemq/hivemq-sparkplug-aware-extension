@@ -73,7 +73,7 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
         final @NotNull String clientId = publishInboundInput.getClientInformation().getClientId();
         final @NotNull PublishPacket publishPacket = publishInboundInput.getPublishPacket();
 
-        final @NotNull String origin = publishInboundOutput.getPublishPacket().getTopic();
+        final @NotNull String origin = publishPacket.getTopic();
         final @NotNull TopicStructure topicStructure = new TopicStructure(origin);
 
         if (log.isTraceEnabled()) {

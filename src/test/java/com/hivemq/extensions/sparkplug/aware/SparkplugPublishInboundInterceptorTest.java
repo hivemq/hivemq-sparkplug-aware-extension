@@ -82,7 +82,8 @@ class SparkplugPublishInboundInterceptorTest {
         publishInboundInput = mock(PublishInboundInput.class);
         publishInboundOutput = mock(PublishInboundOutput.class);
 
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDATA/edgeItem/node");
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/DDATA/edgeItem/node");
+        when(publishInboundInput.getPublishPacket()).thenReturn(publishPacket);
         when(publishInboundInput.getClientInformation()).thenReturn(clientInformation);
         when(clientInformation.getClientId()).thenReturn("alf");
 
