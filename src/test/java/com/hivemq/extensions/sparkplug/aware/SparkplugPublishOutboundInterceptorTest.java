@@ -17,14 +17,10 @@ package com.hivemq.extensions.sparkplug.aware;
 
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
-import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundInput;
-import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishInboundOutput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundOutput;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiableOutboundPublish;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
-import com.hivemq.extension.sdk.api.services.builder.PublishBuilder;
-import com.hivemq.extension.sdk.api.services.publish.PublishService;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
 import org.eclipse.tahu.SparkplugInvalidTypeException;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
@@ -33,11 +29,9 @@ import org.eclipse.tahu.message.model.SparkplugBPayload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +39,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.eclipse.tahu.message.model.MetricDataType.Int32;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**

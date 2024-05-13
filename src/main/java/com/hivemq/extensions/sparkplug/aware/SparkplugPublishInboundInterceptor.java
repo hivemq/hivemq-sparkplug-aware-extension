@@ -33,10 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.logFormattedPayload;
-import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.modifySparkplugTimestamp;
+import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.*;
 
 /**
  * {@link PublishInboundInterceptor},
@@ -51,6 +51,7 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
     private final @NotNull String sysTopic;
     private final boolean useCompression;
     private final boolean jsonLogEnabled;
+    private final boolean metric2topicEnabled;
     private final Long messageExpiry;
 
     public SparkplugPublishInboundInterceptor(final @NotNull SparkplugConfiguration configuration,
@@ -59,6 +60,7 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
         this.sysTopic = configuration.getSparkplugSysTopic();
         this.useCompression = configuration.getCompression();
         this.jsonLogEnabled = configuration.getJsonLogEnabled();
+        this.metric2topicEnabled = configuration.getSparkplugMetric2topicEnabled();
         this.publishService = publishService;
         this.messageExpiry = configuration.getSparkplugSystopicMsgexpiry();
     }
@@ -120,6 +122,8 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
             } else {
                 log.warn("No payload present in the sparkplug message");
             }
+        } else if (metric2topicEnabled && topicStructure.getMessageType() == MessageType.DDATA) {
+            publishMetrics2Topic(origin, publishPacket);
         }
 
         if (jsonLogEnabled) {
@@ -136,8 +140,40 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
                     log.trace("Published CLONE Msg from: {} to: {} ", origin, sysTopic + origin);
                 }
             } else {
-                log.error("Publish to sysTopic: {} failed: {} ", sysTopic + origin, throwable.fillInStackTrace());
+                log.error("Publish to sysTopic: {} failed.", sysTopic + origin, throwable.fillInStackTrace());
             }
         });
+    }
+
+    private void publishMetrics2Topic(final @NotNull String origin, final @NotNull PublishPacket publishPacket) {
+        publishPacket.getPayload().ifPresent(byteBuffer -> {
+                    final Map<String, String> jsonMessages = getMetricsAsMessages(origin, byteBuffer);
+                    jsonMessages.forEach((key, value) -> doPublishMetric(origin, key, value));
+                }
+        );
+    }
+
+    private void doPublishMetric(final String origin, final String metric, final String value) {
+        try {
+            final String newTopic = origin + "/" + metric;
+            // Build the publish
+            final PublishBuilder publishBuilder = Builders.publish();
+            publishBuilder.topic(newTopic);
+            publishBuilder.qos(Qos.AT_LEAST_ONCE);
+            publishBuilder.messageExpiryInterval(messageExpiry);
+            publishBuilder.payload(ByteBuffer.wrap(value.getBytes()));
+            final CompletableFuture<Void> future = publishService.publish(publishBuilder.build());
+            future.whenComplete((aVoid, throwable) -> {
+                if (throwable == null) {
+                    if (log.isTraceEnabled()) {
+                        log.trace("Published Msg from Metric: {} to: {} ", metric, newTopic);
+                    }
+                } else {
+                    log.error("Published Msg from Metric: {} failed.", metric, throwable.fillInStackTrace());
+                }
+            });
+        } catch (Exception all) {
+            log.error("Published Msg from Metric {} failed: {}", metric, all.getMessage());
+        }
     }
 }

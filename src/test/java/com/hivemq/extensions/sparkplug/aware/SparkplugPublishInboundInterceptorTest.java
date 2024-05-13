@@ -40,32 +40,33 @@ import static org.mockito.Mockito.when;
  */
 class SparkplugPublishInboundInterceptorTest {
 
-    private @NotNull SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor;
     private @NotNull PublishInboundInput publishInboundInput;
     private @NotNull PublishInboundOutput publishInboundOutput;
     private @NotNull ModifiablePublishPacket publishPacket;
     private @NotNull Path file;
-    String target = "$sparkplug/certificates/spBv1.0/group/NBIRTH/edgeItem/node";
     private @NotNull ClientInformation clientInformation;
     private @NotNull PublishService publishService;
+
+    private String target = "$sparkplug/certificates/spBv1.0/group/NBIRTH/edgeItem/node";
 
     @BeforeEach
     void setUp(final @TempDir @NotNull Path tempDir) {
         file = tempDir.resolve("sparkplug.properties");
-        SparkplugConfiguration configuration = new SparkplugConfiguration(file.toFile());
+
         publishService = mock(PublishService.class);
-        sparkplugPublishInboundInterceptor = new SparkplugPublishInboundInterceptor(configuration, publishService);
         publishInboundInput = mock(PublishInboundInput.class);
         publishInboundOutput = mock(PublishInboundOutput.class);
         publishPacket = mock(ModifiablePublishPacket.class);
-        when(publishInboundOutput.getPublishPacket()).thenReturn(publishPacket);
         clientInformation = mock(ClientInformation.class);
 
+        when(publishInboundOutput.getPublishPacket()).thenReturn(publishPacket);
     }
 
     @Test
     void topicSparkplug_published() throws IOException {
-        Files.write(file, List.of("sparkplug.version:spBv1.0"));
+        final SparkplugConfiguration configuration = getSparkplugConfiguration(List.of("sparkplug.version:spBv1.0"));
+        final SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor = new SparkplugPublishInboundInterceptor(configuration, publishService);
+
         when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/edgeItem/node");
         when(publishInboundInput.getClientInformation()).thenReturn(clientInformation);
         when(clientInformation.getClientId()).thenReturn("alf");
@@ -73,4 +74,27 @@ class SparkplugPublishInboundInterceptorTest {
         assertEquals("$sparkplug/certificates/spBv1.0/group/NBIRTH/edgeItem/node", target);
     }
 
+    @Test
+    void metric2TopicSparkplug_published() throws IOException {
+        final SparkplugConfiguration configuration = getSparkplugConfiguration(List.of("sparkplug.version:spBv1.0", "sparkplug.metrics2topic:true"));
+        final SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor = new SparkplugPublishInboundInterceptor(configuration, publishService);
+
+        publishInboundInput = mock(PublishInboundInput.class);
+        publishInboundOutput = mock(PublishInboundOutput.class);
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDATA/edgeItem/node");
+        when(publishInboundInput.getClientInformation()).thenReturn(clientInformation);
+        when(clientInformation.getClientId()).thenReturn("alf");
+
+        sparkplugPublishInboundInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
+    }
+
+    private SparkplugConfiguration getSparkplugConfiguration(final List<String> properties) throws IOException {
+        Files.write(file, properties);
+
+        final SparkplugConfiguration configuration = new SparkplugConfiguration(file.getParent().toFile());
+        configuration.readPropertiesFromFile();
+
+        return configuration;
+    }
 }

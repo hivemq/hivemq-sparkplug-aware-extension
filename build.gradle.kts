@@ -22,6 +22,10 @@ hivemqExtension {
     }
 }
 
+tasks.prepareHivemqHome {
+    hivemqHomeDirectory.set(file("hivemq-${libs.versions.hivemq.extensionSdk.get()}"))
+}
+
 task<Checksum>("checksum") {
     dependsOn("hivemqExtensionZip")
     checksumAlgorithm.set(Checksum.Algorithm.SHA256)

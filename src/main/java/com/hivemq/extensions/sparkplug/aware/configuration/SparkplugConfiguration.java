@@ -44,7 +44,8 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     private static final @NotNull String SPARKPLUG_JSON_LOG_ENABLED = "sparkplug.json.log";
     private static final @NotNull String SPARKPLUG_JSON_LOG_DEFAULT = "false";
-
+    private static final @NotNull String SPARKPLUG_METRIC2TOPIC_ENABLED = "sparkplug.metrics2topic";
+    private static final @NotNull String SPARKPLUG_METRIC2TOPIC_DEFAULT = "false";
 
     private static final @NotNull String SPARKPLUG_SYSTOPIC_MSGEXPIRY = "sparkplug.systopic.msgExpiry";
     private static final @NotNull Long SPARKPLUG_SYSTOPIC_MSGEXPIRY_DEFAULT = 4294967296L;
@@ -72,6 +73,10 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     public @NotNull Boolean getJsonLogEnabled() {
         return validateBooleanProperty(SPARKPLUG_JSON_LOG_ENABLED, SPARKPLUG_JSON_LOG_DEFAULT);
+    }
+
+    public @NotNull Boolean getSparkplugMetric2topicEnabled() {
+        return validateBooleanProperty(SPARKPLUG_METRIC2TOPIC_ENABLED, SPARKPLUG_METRIC2TOPIC_DEFAULT);
     }
 
     private Boolean validateBooleanProperty(String key, String defaultValue) {
