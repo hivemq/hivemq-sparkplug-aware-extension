@@ -29,6 +29,7 @@ import com.hivemq.extension.sdk.api.services.publish.PublishService;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
 import com.hivemq.extensions.sparkplug.aware.topics.MessageType;
 import com.hivemq.extensions.sparkplug.aware.topics.TopicStructure;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,7 @@ import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.*;
 public class SparkplugPublishInboundInterceptor implements PublishInboundInterceptor {
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugPublishInboundInterceptor.class);
     private final PublishService publishService;
+    private final PublishBuilder publishBuilder;
     private final @NotNull String sparkplugVersion;
     private final @NotNull String sysTopic;
     private final boolean useCompression;
@@ -56,12 +58,19 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
 
     public SparkplugPublishInboundInterceptor(final @NotNull SparkplugConfiguration configuration,
                                               final @NotNull PublishService publishService) {
+        this(configuration, publishService, Builders.publish());
+    }
+
+    @VisibleForTesting
+    SparkplugPublishInboundInterceptor(final @NotNull SparkplugConfiguration configuration,
+                                              final @NotNull PublishService publishService, final @NotNull PublishBuilder publishBuilder) {
         this.sparkplugVersion = configuration.getSparkplugVersion();
         this.sysTopic = configuration.getSparkplugSysTopic();
         this.useCompression = configuration.getCompression();
         this.jsonLogEnabled = configuration.getJsonLogEnabled();
         this.metric2topicEnabled = configuration.getSparkplugMetric2topicEnabled();
         this.publishService = publishService;
+        this.publishBuilder = publishBuilder;
         this.messageExpiry = configuration.getSparkplugSystopicMsgexpiry();
     }
 
@@ -89,7 +98,6 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
             //it is a sparkplug publish
             try {
                 // Build the publish
-                final PublishBuilder publishBuilder = Builders.publish();
                 publishBuilder.fromPublish(publishPacket);
                 publishBuilder.topic(sysTopic + origin);
                 publishBuilder.qos(Qos.AT_LEAST_ONCE);
@@ -157,7 +165,6 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
         try {
             final String newTopic = origin + "/" + metric;
             // Build the publish
-            final PublishBuilder publishBuilder = Builders.publish();
             publishBuilder.topic(newTopic);
             publishBuilder.qos(Qos.AT_LEAST_ONCE);
             publishBuilder.messageExpiryInterval(messageExpiry);
