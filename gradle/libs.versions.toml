@@ -26,3 +26,4 @@ hivemq-extension = { id = "com.hivemq.extension", version = "3.1.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 license = { id = "com.github.hierynomus.license", version = "0.16.1" }
 checksum = { id = "org.gradle.crypto.checksum", version = "1.4.0"}
+release = { id = "net.researchgate.release", version = "3.0.2" }

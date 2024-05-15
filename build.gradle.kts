@@ -1,3 +1,4 @@
+import net.researchgate.release.ReleaseExtension
 import org.gradle.crypto.checksum.Checksum
 
 plugins {
@@ -5,6 +6,7 @@ plugins {
     alias(libs.plugins.defaults)
     alias(libs.plugins.license)
     alias(libs.plugins.checksum)
+    alias(libs.plugins.release)
 }
 
 group = "com.hivemq.extensions.sparkplug.aware"
@@ -20,6 +22,12 @@ hivemqExtension {
     resources {
         from("LICENSE")
     }
+}
+
+configure<ReleaseExtension> {
+    ignoredSnapshotDependencies.set(listOf("net.researchgate:gradle-release"))
+    revertOnFail.set(true)
+    buildTasks.set(listOf("clean", "hivemqExtensionZip", "checksum"))
 }
 
 tasks.prepareHivemqHome {
