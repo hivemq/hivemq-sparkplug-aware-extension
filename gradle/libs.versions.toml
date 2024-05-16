@@ -1,9 +1,9 @@
 [versions]
 commonsLang = "3.8.1"
 guava = "31.1-jre"
-hivemq-extensionSdk = "4.24.0"
+hivemq-extensionSdk = "4.28.0"
 jackson = "2.13.2"
-jacksonv1 = "1.9.13"
+jackson-asl = "1.9.13"
 jetbrains-annotations = "24.0.1"
 junit-jupiter = "5.10.0"
 mockito = "5.6.0"
@@ -15,7 +15,7 @@ commonsLang = { module = "org.apache.commons:commons-lang3", version.ref = "comm
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jackson = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
-jackson-mapper-asl = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jacksonv1" }
+jackson-mapper-asl = { module = "org.codehaus.jackson:jackson-mapper-asl", version.ref = "jackson-asl" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
@@ -26,3 +26,4 @@ hivemq-extension = { id = "com.hivemq.extension", version = "3.1.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
 license = { id = "com.github.hierynomus.license", version = "0.16.1" }
 checksum = { id = "org.gradle.crypto.checksum", version = "1.4.0"}
+release = { id = "net.researchgate.release", version = "3.0.2" }

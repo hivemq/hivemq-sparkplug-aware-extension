@@ -23,6 +23,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.tahu.message.PayloadDecoder;
 import org.eclipse.tahu.message.SparkplugBPayloadDecoder;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
+import org.eclipse.tahu.message.model.Metric;
 import org.eclipse.tahu.message.model.SparkplugBPayload;
 import org.eclipse.tahu.util.CompressionAlgorithm;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Date;
+import java.util.*;
 
 public final class PayloadUtil {
     private static final @NotNull Logger log = LoggerFactory.getLogger(PayloadUtil.class);
@@ -98,6 +99,24 @@ public final class PayloadUtil {
             jsonLog.error("Failed to parse the sparkplug payload - reason:", e);
         }
         return "";
+    }
+
+    public static Map<String, String> getMetricsAsMessages(final String topic, final ByteBuffer byteBuffer) {
+        SparkplugBPayload inboundPayload = getSparkplugBPayload(byteBuffer);
+        if (inboundPayload == null) {
+            log.warn("No payload present in the sparkplug message");
+            return Collections.emptyMap();
+        }
+        TreeMap<String, String> metricAsJSONMessage = new TreeMap<>();
+        List<Metric> metricList = inboundPayload.getMetrics();
+        for (Metric m : metricList) {
+            if (m.getDataType().toIntValue() > 11) {
+                continue;
+            }
+            String message = MetricMessage.createJSON(m.getName(), m.getTimestamp(), m.getValue().toString(), m.getDataType().toString());
+            metricAsJSONMessage.put(m.getName(), message);
+        }
+        return metricAsJSONMessage;
     }
 
     private static SparkplugBPayload getSparkplugBPayload(@NotNull ByteBuffer payload) {

@@ -12,3 +12,6 @@ out/
 
 .java-version
 .DS_Store
+
+# HiveMQ
+hivemq-4.*.0
