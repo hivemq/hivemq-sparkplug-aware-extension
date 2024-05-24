@@ -78,3 +78,10 @@ license {
     header = rootDir.resolve("HEADER")
     mapping("java", "SLASHSTAR_STYLE")
 }
+
+release {
+    scmAdapters = listOf(net.researchgate.release.GitAdapter::class.java)
+    git {
+        requireBranch.set("")
+    }
+}
