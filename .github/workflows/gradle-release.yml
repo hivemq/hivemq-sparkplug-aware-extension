@@ -18,14 +18,11 @@ on:
         description: 'Is this a pre-release?'
         required: true
         default: false
-#      updateWorkflow:
-#        description: 'Update workflow default versions? NOTE: A personal access token must be available as secret WORKFLOW_TOKEN for this to work!'
-#        required: false
-#        default: false
 
 permissions:
   contents: write
   actions: write
+  pull-requests: read
 
 jobs:
   release:
@@ -111,9 +108,7 @@ jobs:
 
       - name: Generate changelog
         id: changelog
-        run: |
-          CHANGELOG=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"- %s")
-          echo "::set-output name=changelog::$CHANGELOG"
+        uses: mikepenz/release-changelog-builder-action@v4
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -125,30 +120,3 @@ jobs:
           files: |
             ./build/hivemq-extension/hivemq-sparkplug-aware-extension-*.zip
             ./build/hivemq-extension/hivemq-sparkplug-aware-extension-*.zip.sha256
-
-#      - name: Update workflow
-#        run: |
-#
-#          if [[ ${{ github.event.inputs.updateWorkflow }} == "false" ]]; then
-#            echo "Skipping workflow update."
-#            exit 0
-#          fi
-#
-#          IFS='.' read -ra NEXT_VERSION_ARR <<< "${{ env.NEXT_VERSION }}"
-#          NEXT_VERSION_MINOR=$((NEXT_VERSION_ARR[1] + 1))
-#          NEW_NEXT_VERSION="${NEXT_VERSION_ARR[0]}.${NEXT_VERSION_MINOR}.0"
-#
-#          echo $NEW_NEXT_VERSION
-#
-#          set -x
-#          VERSION=${{ env.NEXT_VERSION }} yq eval '.on.workflow_dispatch.inputs.version.default = env(VERSION)' -i .github/workflows/gradle-release.yml
-#          NEXT_VERSION=$NEW_NEXT_VERSION yq eval '.on.workflow_dispatch.inputs.nextVersion.default = env(NEXT_VERSION)' -i .github/workflows/gradle-release.yml
-#          set +x
-#
-#          cat .github/workflows/gradle-release.yml
-#
-#          git config --global user.name "GitHub Action"
-#          git config --global user.email "<>"
-#          git add .github/workflows/gradle-release.yml
-#          git commit -m "Update workflow default versions"
-#          git push

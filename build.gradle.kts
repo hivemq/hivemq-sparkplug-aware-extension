@@ -80,6 +80,8 @@ license {
 }
 
 release {
+    revertOnFail.set(true)
+    buildTasks.set(listOf("clean", "hivemqExtensionZip"))
     scmAdapters = listOf(net.researchgate.release.GitAdapter::class.java)
     git {
         requireBranch.set("")
