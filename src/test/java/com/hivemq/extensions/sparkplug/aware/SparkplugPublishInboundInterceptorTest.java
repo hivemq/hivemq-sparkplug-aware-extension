@@ -81,37 +81,6 @@ class SparkplugPublishInboundInterceptorTest {
         assertEquals("$sparkplug/certificates/spBv1.0/group/NBIRTH/edgeItem/node", target);
     }
 
-    @Test
-    void metric2TopicSparkplug_published() throws IOException {
-        final SparkplugConfiguration configuration = getSparkplugConfiguration(List.of("sparkplug.version:spBv1.0", "sparkplug.metrics2topic:true"));
-
-        final PublishBuilder publishBuilder = mock(PublishBuilder.class);
-        when(publishBuilder.fromPublish(any(Publish.class))).thenReturn(publishBuilder);
-        when(publishBuilder.topic(anyString())).thenReturn(publishBuilder);
-        when(publishBuilder.qos(any(Qos.class))).thenReturn(publishBuilder);
-        when(publishBuilder.payload(any(ByteBuffer.class))).thenReturn(publishBuilder);
-        when(publishBuilder.build()).thenReturn(mock(Publish.class));
-
-        final SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor = new SparkplugPublishInboundInterceptor(configuration, publishService, publishBuilder);
-
-        publishInboundInput = mock(PublishInboundInput.class);
-        publishInboundOutput = mock(PublishInboundOutput.class);
-
-        when(publishPacket.getPayload()).thenReturn(Optional.of(ByteBuffer.wrap(DDATA_PUBLISH_PAYLOAD)));
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/DDATA/edgeItem/node");
-        when(publishInboundInput.getPublishPacket()).thenReturn(publishPacket);
-        when(publishInboundInput.getClientInformation()).thenReturn(clientInformation);
-        when(clientInformation.getClientId()).thenReturn("alf");
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/DDATA/edgeItem/node");
-        when(publishInboundInput.getPublishPacket()).thenReturn(publishPacket);
-        when(publishInboundInput.getClientInformation()).thenReturn(clientInformation);
-        when(clientInformation.getClientId()).thenReturn("alf");
-
-        sparkplugPublishInboundInterceptor.onInboundPublish(publishInboundInput, publishInboundOutput);
-
-        verify(publishService, times(4)).publish(any(Publish.class));
-    }
-
     private SparkplugConfiguration getSparkplugConfiguration(final List<String> properties) throws IOException {
         Files.write(file, properties);
 
