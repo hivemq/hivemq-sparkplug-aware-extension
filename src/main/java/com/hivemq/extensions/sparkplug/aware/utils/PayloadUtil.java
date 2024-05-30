@@ -93,7 +93,7 @@ public final class PayloadUtil {
         try {
             byte[] bytes = getBytesFromBuffer(payload);
             PayloadDecoder<SparkplugBPayload> decoder = new SparkplugBPayloadDecoder();
-            SparkplugBPayload sparkplugPayload = decoder.buildFromByteArray(bytes);
+            SparkplugBPayload sparkplugPayload = decoder.buildFromByteArray(bytes, null);
             return org.eclipse.tahu.util.PayloadUtil.toJsonString(sparkplugPayload);
         } catch (Exception e) {
             jsonLog.error("Failed to parse the sparkplug payload - reason:", e);
@@ -123,7 +123,7 @@ public final class PayloadUtil {
         try {
             byte[] bytes = getBytesFromBuffer(payload);
             PayloadDecoder<SparkplugBPayload> decoder = new SparkplugBPayloadDecoder();
-            return decoder.buildFromByteArray(bytes);
+            return decoder.buildFromByteArray(bytes, null);
         } catch (Exception e) {
             log.error("Failed to parse the sparkplug payload - reason:", e);
         }

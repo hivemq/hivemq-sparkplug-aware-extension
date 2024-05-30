@@ -8,11 +8,11 @@ on:
       version:
         description: 'Version to release (e.g. 0.0.0)'
         required: true
-        default: '4.28.0'
+        default: '4.29.0'
       nextVersion:
         description: 'Next version for development (e.g. 0.0.0; do not include -SNAPSHOT)'
         required: true
-        default: '4.29.0'
+        default: '4.30.0'
       preRelease:
         type: boolean
         description: 'Is this a pre-release?'
