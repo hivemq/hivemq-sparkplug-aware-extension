@@ -14,17 +14,15 @@ on:
         required: true
         default: '4.29.0'
       preRelease:
+        type: boolean
         description: 'Is this a pre-release?'
         required: true
         default: false
-#      updateWorkflow:
-#        description: 'Update workflow default versions? NOTE: A personal access token must be available as secret WORKFLOW_TOKEN for this to work!'
-#        required: false
-#        default: false
 
 permissions:
   contents: write
   actions: write
+  pull-requests: read
 
 jobs:
   release:
@@ -36,7 +34,7 @@ jobs:
 
       - name: Validate versions
         run: |
-          VERSION_REGEX="^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$"
+          VERSION_REGEX="^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9][0-9]*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?$"
 
           echo "Checking if version and nextVersion comply with semantic versioning..."
           if [[ ! "${{ github.event.inputs.version }}" =~ $VERSION_REGEX ]] || [[ ! "${{ github.event.inputs.nextVersion }}" =~ $VERSION_REGEX ]]; then
@@ -90,7 +88,7 @@ jobs:
           fi
 
       - name: Set up JDK 11
-        uses: actions/setup-java@v4.0.0
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
         with:
           java-version: '11'
           distribution: 'temurin'
@@ -98,7 +96,7 @@ jobs:
           cache: gradle
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3.0.0
+        uses: gradle/gradle-build-action@4c39dd82cd5e1ec7c6fa0173bb41b4b6bb3b86ff # v3.3.2
 
       - name: Setup git config
         run: |
@@ -110,12 +108,35 @@ jobs:
 
       - name: Generate changelog
         id: changelog
-        run: |
-          CHANGELOG=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"- %s")
-          echo "::set-output name=changelog::$CHANGELOG"
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configurationJson: |
+            {
+              "template": "#{{CHANGELOG}}",
+              "categories": [
+                {
+                    "title": "## Feature",
+                    "labels": ["feat", "feature"]
+                },
+                {
+                    "title": "## Fix",
+                    "labels": ["fix", "bug"]
+                },
+                {
+                    "title": "## Other",
+                    "labels": []
+                }
+              ],
+              "label_extractor": [
+                {
+                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\\([\\w\\-\\.]+\\))?(!)?: ([\\w ])+([\\s\\S]*)",
+                  "target": "$1"
+                }
+              ],
+            }
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87 # v2
         with:
           name: Release v${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}
@@ -124,30 +145,3 @@ jobs:
           files: |
             ./build/hivemq-extension/hivemq-sparkplug-aware-extension-*.zip
             ./build/hivemq-extension/hivemq-sparkplug-aware-extension-*.zip.sha256
-
-#      - name: Update workflow
-#        run: |
-#
-#          if [[ ${{ github.event.inputs.updateWorkflow }} == "false" ]]; then
-#            echo "Skipping workflow update."
-#            exit 0
-#          fi
-#
-#          IFS='.' read -ra NEXT_VERSION_ARR <<< "${{ env.NEXT_VERSION }}"
-#          NEXT_VERSION_MINOR=$((NEXT_VERSION_ARR[1] + 1))
-#          NEW_NEXT_VERSION="${NEXT_VERSION_ARR[0]}.${NEXT_VERSION_MINOR}.0"
-#
-#          echo $NEW_NEXT_VERSION
-#
-#          set -x
-#          VERSION=${{ env.NEXT_VERSION }} yq eval '.on.workflow_dispatch.inputs.version.default = env(VERSION)' -i .github/workflows/gradle-release.yml
-#          NEXT_VERSION=$NEW_NEXT_VERSION yq eval '.on.workflow_dispatch.inputs.nextVersion.default = env(NEXT_VERSION)' -i .github/workflows/gradle-release.yml
-#          set +x
-#
-#          cat .github/workflows/gradle-release.yml
-#
-#          git config --global user.name "GitHub Action"
-#          git config --global user.email "<>"
-#          git add .github/workflows/gradle-release.yml
-#          git commit -m "Update workflow default versions"
-#          git push

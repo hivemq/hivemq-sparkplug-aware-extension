@@ -78,3 +78,12 @@ license {
     header = rootDir.resolve("HEADER")
     mapping("java", "SLASHSTAR_STYLE")
 }
+
+release {
+    revertOnFail.set(true)
+    buildTasks.set(listOf("clean", "hivemqExtensionZip", "checksum"))
+    scmAdapters = listOf(net.researchgate.release.GitAdapter::class.java)
+    git {
+        requireBranch.set("")
+    }
+}
