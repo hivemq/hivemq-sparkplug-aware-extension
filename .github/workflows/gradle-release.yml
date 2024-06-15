@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
           ssh-key: ${{secrets.PS_RELEASE_SECRET}}
 
@@ -98,7 +98,7 @@ jobs:
           cache: gradle
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@4c39dd82cd5e1ec7c6fa0173bb41b4b6bb3b86ff # v3.3.2
+        uses: gradle/gradle-build-action@db35f2304698ac6ff98958322dfd3db0a5da9fdf # v3.4.0
 
       - name: Setup git config
         run: |
