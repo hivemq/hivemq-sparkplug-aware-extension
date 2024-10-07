@@ -1,4 +1,3 @@
-import net.researchgate.release.ReleaseExtension
 import org.gradle.crypto.checksum.Checksum
 
 plugins {
@@ -13,36 +12,15 @@ group = "com.hivemq.extensions.sparkplug.aware"
 description = "HiveMQ Sparkplug Aware Extension"
 
 hivemqExtension {
-    name.set("Sparkplug Aware Extension")
-    author.set("HiveMQ")
-    priority.set(1000)
-    startPriority.set(1000)
-    sdkVersion.set(libs.versions.hivemq.extensionSdk)
+    name = "Sparkplug Aware Extension"
+    author = "HiveMQ"
+    priority = 1000
+    startPriority = 1000
+    sdkVersion = libs.versions.hivemq.extensionSdk
 
     resources {
         from("LICENSE")
     }
-}
-
-configure<ReleaseExtension> {
-    ignoredSnapshotDependencies.set(listOf("net.researchgate:gradle-release"))
-    revertOnFail.set(true)
-    buildTasks.set(listOf("clean", "hivemqExtensionZip", "checksum"))
-}
-
-tasks.prepareHivemqHome {
-    hivemqHomeDirectory.set(file("hivemq-${libs.versions.hivemq.extensionSdk.get()}"))
-}
-
-task<Checksum>("checksum") {
-    dependsOn("hivemqExtensionZip")
-    checksumAlgorithm.set(Checksum.Algorithm.SHA256)
-    inputFiles.setFrom(
-        files(
-            tasks.hivemqExtensionZip.get().outputs.files
-        )
-    )
-    outputDirectory.set(file("${layout.buildDirectory.get()}/hivemq-extension"))
 }
 
 repositories {
@@ -58,6 +36,12 @@ dependencies {
     implementation(libs.protobuf)
     implementation(libs.guava)
     implementation(libs.commonsLang)
+}
+
+tasks.register<Checksum>("checksum") {
+    checksumAlgorithm = Checksum.Algorithm.SHA256
+    inputFiles.from(tasks.hivemqExtensionZip)
+    outputDirectory = layout.buildDirectory.dir("hivemq-extension")
 }
 
 @Suppress("UnstableApiUsage")
@@ -80,8 +64,7 @@ license {
 }
 
 release {
-    revertOnFail.set(true)
-    buildTasks.set(listOf("clean", "hivemqExtensionZip", "checksum"))
+    buildTasks = listOf("clean", "hivemqExtensionZip", "checksum")
     scmAdapters = listOf(net.researchgate.release.GitAdapter::class.java)
     git {
         requireBranch.set("")
