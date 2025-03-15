@@ -6,7 +6,7 @@ jackson = "2.18.3"
 jackson-asl = "1.9.13"
 jetbrains-annotations = "26.0.2"
 junit-jupiter = "5.10.0"
-mockito = "5.15.2"
+mockito = "5.16.1"
 protobuf = "3.25.6"
 tahu = "1.0.13"
 
