@@ -15,14 +15,13 @@
  */
 package com.hivemq.extensions.sparkplug.aware.configuration;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.Properties;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Reads a property file containing influxdb properties
@@ -48,9 +47,10 @@ public class SparkplugConfiguration extends PropertiesReader {
     private static final @NotNull String SPARKPLUG_SYSTOPIC_MSGEXPIRY = "sparkplug.systopic.msgExpiry";
     private static final @NotNull Long SPARKPLUG_SYSTOPIC_MSGEXPIRY_DEFAULT = 4294967296L;
 
-    public SparkplugConfiguration(@NotNull final File configFilePath) {
+    public SparkplugConfiguration(final @NotNull File configFilePath) {
         super(configFilePath);
     }
+
     public @NotNull Long getSparkplugSystopicMsgexpiry() {
         return validateLongProperty(SPARKPLUG_SYSTOPIC_MSGEXPIRY, SPARKPLUG_SYSTOPIC_MSGEXPIRY_DEFAULT, true, false);
     }
@@ -59,7 +59,6 @@ public class SparkplugConfiguration extends PropertiesReader {
     public @NotNull String getFilename() {
         return "sparkplug.properties";
     }
-
 
     public @NotNull String getSparkplugSysTopic() {
         return validateStringProperty(SPARKPLUG_SYSTOPIC, SPARKPLUG_SYSTOPIC_DEFAULT);
@@ -73,10 +72,10 @@ public class SparkplugConfiguration extends PropertiesReader {
         return validateBooleanProperty(SPARKPLUG_JSON_LOG_ENABLED, SPARKPLUG_JSON_LOG_DEFAULT);
     }
 
-    private Boolean validateBooleanProperty(String key, String defaultValue) {
-        checkNotNull(key, "Key to fetch property must not be null");
-        checkNotNull(defaultValue, "Default value for property must not be null");
-        final String value = getProperty(key);
+    private Boolean validateBooleanProperty(final @NotNull String key, final @NotNull String defaultValue) {
+        Objects.requireNonNull(key, "Key to fetch property must not be null");
+        Objects.requireNonNull(defaultValue, "Default value for property must not be null");
+        final var value = getProperty(key);
         if (value == null) {
             if (!defaultValue.isEmpty()) {
                 log.warn("No '{}' configured , using default: {}", key, defaultValue);
@@ -87,16 +86,17 @@ public class SparkplugConfiguration extends PropertiesReader {
     }
 
     /**
-     * Fetch property with given <b>key</b>. If the fetched {@link String} is <b>null</b> the <b>defaultValue</b> will be returned.
+     * Fetch property with given <b>key</b>. If the fetched {@link String} is <b>null</b> the <b>defaultValue</b> will
+     * be returned.
      *
      * @param key          Key of the property.
      * @param defaultValue Default value as fallback, if property has no value.
      * @return the actual value of the property if it is set, else the <b>defaultValue</b>.
      */
-    private String validateStringProperty(@NotNull final String key, @NotNull final String defaultValue) {
-        checkNotNull(key, "Key to fetch property must not be null");
-        checkNotNull(defaultValue, "Default value for property must not be null");
-        final String value = getProperty(key);
+    private String validateStringProperty(final @NotNull String key, final @NotNull String defaultValue) {
+        Objects.requireNonNull(key, "Key to fetch property must not be null");
+        Objects.requireNonNull(defaultValue, "Default value for property must not be null");
+        final var value = getProperty(key);
         if (value == null) {
             if (!defaultValue.isEmpty()) {
                 log.warn("No '{}' configured , using default: {}", key, defaultValue);
@@ -108,7 +108,8 @@ public class SparkplugConfiguration extends PropertiesReader {
 
     /**
      * Fetch property with given <b>key</b>.
-     * If the fetched {@link String} value is not <b>null</b> convert the value to an int and check validation constraints if given flags are <b>false</b> before returning the value.
+     * If the fetched {@link String} value is not <b>null</b> convert the value to an int and check validation
+     * constraints if given flags are <b>false</b> before returning the value.
      *
      * @param key             Key of the property
      * @param defaultValue    Default value as fallback, if property has no value
@@ -116,33 +117,36 @@ public class SparkplugConfiguration extends PropertiesReader {
      * @param negativeAllowed use <b>true</b> is property can be negative int
      * @return the actual value of the property if it is set and valid, else the <b>defaultValue</b>
      */
-    private long validateLongProperty(@NotNull final String key, final long defaultValue, final boolean zeroAllowed, final boolean negativeAllowed) {
-        checkNotNull(key, "Key to fetch property must not be null");
-
-        final String value = properties != null ? properties.getProperty(key) : null;
+    @SuppressWarnings("SameParameterValue")
+    private long validateLongProperty(
+            final @NotNull String key,
+            final long defaultValue,
+            final boolean zeroAllowed,
+            final boolean negativeAllowed) {
+        Objects.requireNonNull(key, "Key to fetch property must not be null");
+        final var value = properties != null ? properties.getProperty(key) : null;
         if (value == null) {
             log.warn("No '{}' configured, using default: {}", key, defaultValue);
             return defaultValue;
         }
-
         final long valueAsLong;
         try {
             valueAsLong = Long.parseLong(value);
         } catch (final NumberFormatException e) {
-            log.warn("Value for the property '{}' is not a number, original value {}. Using default: {}", key, value, defaultValue);
+            log.warn("Value for the property '{}' is not a number, original value {}. Using default: {}",
+                    key,
+                    value,
+                    defaultValue);
             return defaultValue;
         }
-
         if (!zeroAllowed && valueAsLong == 0) {
             log.warn("Value for the property '{}' can't be zero. Using default: {}", key, defaultValue);
             return defaultValue;
         }
-
         if (!negativeAllowed && valueAsLong < 0) {
             log.warn("Value for the property '{}' can't be negative. Using default: {}", key, defaultValue);
             return defaultValue;
         }
-
         return valueAsLong;
     }
 

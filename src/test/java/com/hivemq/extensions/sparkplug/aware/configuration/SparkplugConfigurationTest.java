@@ -19,15 +19,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SparkplugConfigurationTest {
 
     @Test
     void shouldReadConfigurationFromFile() {
-        final File extensionFolder = new File("src/hivemq-extension");
-        final boolean valid = new SparkplugConfiguration(new File(extensionFolder, "conf")).readPropertiesFromFile();
-
-        assertTrue(valid);
+        final var extensionFolder = new File("src/hivemq-extension");
+        final var configuration = new SparkplugConfiguration(new File(extensionFolder, "conf"));
+        assertThat(configuration.readPropertiesFromFile()).isTrue();
     }
 }

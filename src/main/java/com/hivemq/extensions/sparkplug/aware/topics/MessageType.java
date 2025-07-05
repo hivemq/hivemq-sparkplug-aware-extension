@@ -15,7 +15,7 @@
  */
 package com.hivemq.extensions.sparkplug.aware.topics;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 public enum MessageType {
     /**

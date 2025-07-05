@@ -15,14 +15,21 @@
  */
 package com.hivemq.extensions.sparkplug.aware;
 
+import org.jetbrains.annotations.NotNull;
+
 public final class AwareRequirements {
 
     AwareRequirements() {
     }
 
-    public static final String CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_TOPIC = "A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on a topic of the form: $sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id";
-    public static final String CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_RETAIN = "A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on the topic: $sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id with the MQTT retain flag set to true";
-    public static final String CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_TOPIC = "A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on a topic of the form: $sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id";
-    public static final String CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_RETAIN = "A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on the topic: $sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id with the MQTT retain flag set to true";
-    public static final String CONFORMANCE_MQTT_AWARE_NDEATH_TIMESTAMP = "A Sparkplug Aware MQTT Server MAY replace the timestamp of NDEATH messages. If it does, it MUST set the timestamp to the UTC time at which it attempts to deliver the NDEATH to subscribed clients";
+    public static final @NotNull String CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_TOPIC =
+            "A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on a topic of the form: $sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id";
+    public static final @NotNull String CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_RETAIN =
+            "A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on the topic: $sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id with the MQTT retain flag set to true";
+    public static final @NotNull String CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_TOPIC =
+            "A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on a topic of the form: $sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id";
+    public static final @NotNull String CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_RETAIN =
+            "A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on the topic: $sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id with the MQTT retain flag set to true";
+    public static final @NotNull String CONFORMANCE_MQTT_AWARE_NDEATH_TIMESTAMP =
+            "A Sparkplug Aware MQTT Server MAY replace the timestamp of NDEATH messages. If it does, it MUST set the timestamp to the UTC time at which it attempts to deliver the NDEATH to subscribed clients";
 }

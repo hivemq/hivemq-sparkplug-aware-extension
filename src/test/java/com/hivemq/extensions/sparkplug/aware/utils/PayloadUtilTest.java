@@ -15,11 +15,11 @@
  */
 package com.hivemq.extensions.sparkplug.aware.utils;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import org.eclipse.tahu.SparkplugInvalidTypeException;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.Metric;
 import org.eclipse.tahu.message.model.SparkplugBPayload;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,45 +32,38 @@ import java.util.List;
 
 import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.asJSONFormatted;
 import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.getPayloadAsJSON;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.tahu.message.model.MetricDataType.Int32;
 import static org.eclipse.tahu.message.model.MetricDataType.Text;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PayloadUtilTest {
-    private static final @NotNull Logger log = LoggerFactory.getLogger(PayloadUtilTest.class);
-    List<Metric> metrics = new ArrayList<Metric>();
-    byte[] encodedSparkplugPayload;
 
+    private static final @NotNull Logger log = LoggerFactory.getLogger(PayloadUtilTest.class);
+
+    private final @NotNull List<Metric> metrics = new ArrayList<>();
 
     @Test
     void asJSONFormattedTest() throws IOException, SparkplugInvalidTypeException {
-        @NotNull ByteBuffer payload = ByteBuffer.wrap(createSparkplugBPayload());
-        final String json = asJSONFormatted(getPayloadAsJSON(payload));
-        assertEquals(true, json.length() > 0);
+        final var payload = ByteBuffer.wrap(createSparkplugBPayload());
+        final var json = asJSONFormatted(getPayloadAsJSON(payload));
         log.info(json);
+        assertThat(json).isNotEmpty();
     }
-
 
     @Test
     void getPayloadAsJSONTest() throws IOException, SparkplugInvalidTypeException {
-        @NotNull ByteBuffer payload = ByteBuffer.wrap(createSparkplugBPayload());
-        final String json = getPayloadAsJSON(payload);
-        assertEquals(true, json.length() > 0);
+        final var payload = ByteBuffer.wrap(createSparkplugBPayload());
+        final var json = getPayloadAsJSON(payload);
         log.info(json);
+        assertThat(json).isNotEmpty();
     }
 
+    private byte @NotNull [] createSparkplugBPayload() throws IOException, SparkplugInvalidTypeException {
+        // add a 'real time' metric
+        metrics.add(new Metric.MetricBuilder("a number metric", Int32, 42).timestamp(new Date()).createMetric());
+        metrics.add(new Metric.MetricBuilder("a text metric", Text, "Hello").timestamp(new Date()).createMetric());
 
-    private byte[] createSparkplugBPayload() throws IOException, SparkplugInvalidTypeException {
-        // Add a 'real time' metric
-        metrics.add(new Metric.MetricBuilder("a number metric", Int32, 42)
-                .timestamp(new Date())
-                .createMetric());
-        metrics.add(new Metric.MetricBuilder("a text metric", Text, "Hello")
-                .timestamp(new Date())
-                .createMetric());
-
-        SparkplugBPayload sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, null, null);
+        final var sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, null, null);
         return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload, false);
     }
-
 }

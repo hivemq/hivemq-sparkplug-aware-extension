@@ -15,12 +15,11 @@
  */
 package com.hivemq.extensions.sparkplug.aware;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.SubscribeInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.parameter.SubscribeInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.parameter.SubscribeInboundOutput;
-import com.hivemq.extension.sdk.api.packets.subscribe.ModifiableSubscription;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,9 @@ import org.slf4j.LoggerFactory;
  * @since 4.3.1
  */
 public class SparkplugSubscribeInterceptor implements SubscribeInboundInterceptor {
+
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugSubscribeInterceptor.class);
+
     private final @NotNull String sysTopic;
 
     public SparkplugSubscribeInterceptor(final @NotNull SparkplugConfiguration configuration) {
@@ -44,16 +45,17 @@ public class SparkplugSubscribeInterceptor implements SubscribeInboundIntercepto
     }
 
     @Override
-    public void onInboundSubscribe(@NotNull SubscribeInboundInput subscribeInboundInput, @NotNull SubscribeInboundOutput subscribeInboundOutput) {
-        final String clientID = subscribeInboundInput.getClientInformation().getClientId();
-        for (ModifiableSubscription subscription : subscribeInboundOutput.getSubscribePacket().getSubscriptions()) {
+    public void onInboundSubscribe(
+            final @NotNull SubscribeInboundInput subscribeInboundInput,
+            final @NotNull SubscribeInboundOutput subscribeInboundOutput) {
+        final var clientID = subscribeInboundInput.getClientInformation().getClientId();
+        for (final var subscription : subscribeInboundOutput.getSubscribePacket().getSubscriptions()) {
             if (subscription.getTopicFilter().startsWith(this.sysTopic)) {
                 log.debug("Modify Subscribe - to have retained as published {} from Client {}",
-                        subscription.getTopicFilter(), clientID);
+                        subscription.getTopicFilter(),
+                        clientID);
                 subscription.setRetainAsPublished(true);
             }
         }
     }
-
-
 }

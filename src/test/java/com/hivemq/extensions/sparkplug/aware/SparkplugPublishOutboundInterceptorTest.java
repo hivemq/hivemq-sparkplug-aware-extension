@@ -15,7 +15,6 @@
  */
 package com.hivemq.extensions.sparkplug.aware;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundOutput;
@@ -26,6 +25,7 @@ import org.eclipse.tahu.SparkplugInvalidTypeException;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.Metric;
 import org.eclipse.tahu.message.model.SparkplugBPayload;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,45 +39,39 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.eclipse.tahu.message.model.MetricDataType.Int32;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Anja Helmbrecht-Schaar
  */
 class SparkplugPublishOutboundInterceptorTest {
 
-    List<Metric> metrics = new ArrayList<Metric>();
-    byte[] encodedSparkplugPayload;
+    private final @NotNull PublishOutboundInput publishOutboundInput = mock();
+    private final @NotNull PublishOutboundOutput publishOutboundOutput = mock();
+    private final @NotNull ModifiablePublishPacket publishPacket = mock();
+    private final @NotNull ModifiableOutboundPublish modifiableOutboundPublish = mock();
+    private final @NotNull ClientInformation clientInformation = mock();
+
+    private final @NotNull List<Metric> metrics = new ArrayList<>();
+
     private @NotNull SparkplugPublishOutboundInterceptor sparkplugPublishOutboundInterceptor;
-    private @NotNull PublishOutboundInput publishOutboundInput;
-    private @NotNull PublishOutboundOutput publishOutboundOutput;
-    private @NotNull ModifiablePublishPacket publishPacket;
-    private @NotNull Path file;
-    private @NotNull ModifiableOutboundPublish modifiableOutboundPublish;
-    private @NotNull ClientInformation clientInformation;
+    private byte @NotNull [] encodedSparkplugPayload;
 
     @BeforeEach
-    void setUp(final @TempDir @NotNull Path tempDir) {
-        file = tempDir.resolve("sparkplug.properties");
-        SparkplugConfiguration configuration = new SparkplugConfiguration(file.toFile());
-        sparkplugPublishOutboundInterceptor = new SparkplugPublishOutboundInterceptor(configuration);
-        publishOutboundInput = mock(PublishOutboundInput.class);
-        publishOutboundOutput = mock(PublishOutboundOutput.class);
-        modifiableOutboundPublish = mock(ModifiableOutboundPublish.class);
-        publishPacket = mock(ModifiablePublishPacket.class);
+    void setUp(final @TempDir @NotNull Path tempDir) throws Exception {
         when(publishOutboundInput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
-
         when(publishOutboundInput.getPublishPacket()).thenReturn(publishPacket);
         when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
 
-        clientInformation = mock(ClientInformation.class);
+        final var file = tempDir.resolve("sparkplug.properties");
+        final var configuration = new SparkplugConfiguration(file.toFile());
+        sparkplugPublishOutboundInterceptor = new SparkplugPublishOutboundInterceptor(configuration);
 
-        try {
-            encodedSparkplugPayload = createSparkplugBPayload();
-        } catch (IOException | SparkplugInvalidTypeException e) {
-            e.printStackTrace();
-        }
-
+        encodedSparkplugPayload = createSparkplugBPayload();
     }
 
     @Test
@@ -100,13 +94,10 @@ class SparkplugPublishOutboundInterceptorTest {
         verify(modifiableOutboundPublish, times(1)).setPayload(any());
     }
 
-    private byte[] createSparkplugBPayload() throws IOException, SparkplugInvalidTypeException {
-        // Add a 'real time' metric
-        metrics.add(new Metric.MetricBuilder("a metric", Int32, 42)
-                .timestamp(new Date())
-                .createMetric());
-        SparkplugBPayload sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, "alf", null);
-        return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload,false);
+    private byte @NotNull [] createSparkplugBPayload() throws Exception {
+        // add a 'real time' metric
+        metrics.add(new Metric.MetricBuilder("a metric", Int32, 42).timestamp(new Date()).createMetric());
+        final var sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, "alf", null);
+        return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload, false);
     }
-
 }

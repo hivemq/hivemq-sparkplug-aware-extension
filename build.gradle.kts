@@ -40,8 +40,6 @@ dependencies {
     implementation(libs.jackson)
     implementation(libs.jackson.databind)
     implementation(libs.protobuf)
-    implementation(libs.guava)
-    implementation(libs.commonsLang)
 }
 
 tasks.register<Checksum>("checksum") {
@@ -58,6 +56,8 @@ testing {
         }
         "test"(JvmTestSuite::class) {
             dependencies {
+                compileOnly(libs.jetbrains.annotations)
+                implementation(libs.assertj)
                 implementation(libs.mockito)
             }
         }

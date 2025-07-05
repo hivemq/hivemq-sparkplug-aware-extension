@@ -15,75 +15,64 @@
  */
 package com.hivemq.extensions.sparkplug.aware;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.parameter.SubscribeInboundInput;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.parameter.SubscribeInboundOutput;
 import com.hivemq.extension.sdk.api.packets.subscribe.ModifiableSubscribePacket;
 import com.hivemq.extension.sdk.api.packets.subscribe.ModifiableSubscription;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
-import org.eclipse.tahu.SparkplugInvalidTypeException;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.Metric;
 import org.eclipse.tahu.message.model.SparkplugBPayload;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.tahu.message.model.MetricDataType.Int32;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Anja Helmbrecht-Schaar
  */
 class SparkplugSubscribeInterceptorTest {
 
-    List<Metric> metrics = new ArrayList<Metric>();
-    byte[] encodedSparkplugPayload;
-    private @NotNull SparkplugSubscribeInterceptor sparkplugSubscribeInterceptor;
-    private @NotNull SubscribeInboundInput subscribeInboundInput;
-    private @NotNull SubscribeInboundOutput subscribeInboundOutput;
-    private @NotNull ModifiableSubscription subscription;
-    private @NotNull ModifiableSubscribePacket subscribePacket;
+    private final @NotNull SubscribeInboundInput subscribeInboundInput = mock();
+    private final @NotNull SubscribeInboundOutput subscribeInboundOutput = mock();
+    private final @NotNull ModifiableSubscription subscription = mock();
+    private final @NotNull ModifiableSubscribePacket subscribePacket = mock();
+    private final @NotNull ClientInformation clientInformation = mock();
+
+    private final @NotNull List<Metric> metrics = new ArrayList<>();
+
     private @NotNull Path file;
-    private @NotNull ClientInformation clientInformation;
+    private @NotNull SparkplugSubscribeInterceptor sparkplugSubscribeInterceptor;
+    private byte @NotNull [] encodedSparkplugPayload;
 
     @BeforeEach
-    void setUp(final @TempDir @NotNull Path tempDir) {
+    void setUp(final @TempDir @NotNull Path tempDir) throws Exception {
         file = tempDir.resolve("sparkplug.properties");
-        SparkplugConfiguration configuration = new SparkplugConfiguration(file.toFile());
-
+        final var configuration = new SparkplugConfiguration(file.toFile());
         sparkplugSubscribeInterceptor = new SparkplugSubscribeInterceptor(configuration);
-        subscribeInboundInput = mock(SubscribeInboundInput.class);
-        subscribeInboundOutput = mock(SubscribeInboundOutput.class);
-        subscribePacket = mock(ModifiableSubscribePacket.class);
-        subscription = mock(ModifiableSubscription.class);
-        clientInformation = mock(ClientInformation.class);
-
-
-        try {
-            encodedSparkplugPayload = createSparkplugBPayload();
-        } catch (IOException | SparkplugInvalidTypeException e) {
-            e.printStackTrace();
-        }
-
+        encodedSparkplugPayload = createSparkplugBPayload();
     }
 
     @Test
-    void onInboundSubscribeTest() throws IOException {
+    void onInboundSubscribeTest() throws Exception {
         Files.write(file, List.of("sparkplug.version:spBv1.0"));
         when(subscription.getTopicFilter()).thenReturn("$sparkplug/certificates/spBv1.0/group/NBIRTH/node/item");
 
-        List<ModifiableSubscription> subscriptions = new ArrayList<>();
+        final var subscriptions = new ArrayList<ModifiableSubscription>();
         subscriptions.add(subscription);
         when(subscribePacket.getSubscriptions()).thenReturn(subscriptions);
         when(subscribeInboundOutput.getSubscribePacket()).thenReturn(subscribePacket);
@@ -92,19 +81,15 @@ class SparkplugSubscribeInterceptorTest {
         when(subscribeInboundInput.getClientInformation()).thenReturn(clientInformation);
 
         sparkplugSubscribeInterceptor.onInboundSubscribe(subscribeInboundInput, subscribeInboundOutput);
-        final ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
+        final var captor = ArgumentCaptor.forClass(Boolean.class);
         verify(subscription).setRetainAsPublished(captor.capture());
-        assertEquals(true, captor.getValue());
+        assertThat(captor.getValue()).isTrue();
     }
 
-
-    private byte[] createSparkplugBPayload() throws IOException, SparkplugInvalidTypeException {
-        // Add a 'real time' metric
-        metrics.add(new Metric.MetricBuilder("a metric", Int32, 42)
-                .timestamp(new Date())
-                .createMetric());
-        SparkplugBPayload sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, null, null);
+    private byte @NotNull [] createSparkplugBPayload() throws Exception {
+        // add a 'real time' metric
+        metrics.add(new Metric.MetricBuilder("a metric", Int32, 42).timestamp(new Date()).createMetric());
+        final var sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, null, null);
         return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload, false);
     }
-
 }

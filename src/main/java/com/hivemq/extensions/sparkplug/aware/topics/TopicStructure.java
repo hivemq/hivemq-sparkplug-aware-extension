@@ -15,8 +15,8 @@
  */
 package com.hivemq.extensions.sparkplug.aware.topics;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Topic structure meta object to create sparkplug structure and
@@ -30,12 +30,12 @@ public class TopicStructure {
     private @NotNull String namespace;
     private @NotNull String groupId;
     private @NotNull MessageType messageType;
-    private @Nullable String eonId;
     private @Nullable String scadaId;
+    private @Nullable String eonId;
     private @Nullable String deviceId;
 
     public TopicStructure(final @NotNull String topic) {
-        final String[] arr = topic.split("/");
+        final var arr = topic.split("/");
         topicLevels = arr.length;
         if (topicLevels >= 4) {
             namespace = arr[0];
@@ -68,34 +68,41 @@ public class TopicStructure {
         return messageType;
     }
 
-    public @Nullable String getEonId() {
-        return eonId;
-    }
-
     public @Nullable String getScadaId() {
         return scadaId;
+    }
+
+    public @Nullable String getEonId() {
+        return eonId;
     }
 
     public @Nullable String getDeviceId() {
         return deviceId;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isValid(final @NotNull String sparkplugVersion) {
-        return topicLevels > 3
-                && isValidNamespace(sparkplugVersion)
-                && isValidMessageType()
-                && (scadaId != null || eonId != null);
+        return topicLevels > 3 &&
+                isValidNamespace(sparkplugVersion) &&
+                isValidMessageType() &&
+                (scadaId != null || eonId != null);
     }
 
     @Override
     public @NotNull String toString() {
         return "TopicStructure{" +
-                "namespace='" + namespace + '\'' +
-                ", groupId='" + groupId + '\'' +
-                ", messageType='" + messageType + '\'' +
-                ", eonId='" + eonId + '\'' +
-                ", deviceId='" + deviceId + '\'' +
-                ", scadaId='" + scadaId + '\'' +
-                '}';
+                "namespace='" +
+                namespace +
+                "', groupId='" +
+                groupId +
+                "', messageType='" +
+                messageType +
+                "', eonId='" +
+                eonId +
+                "', deviceId='" +
+                deviceId +
+                "', scadaId='" +
+                scadaId +
+                "'}";
     }
 }

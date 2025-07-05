@@ -15,15 +15,14 @@
  */
 package com.hivemq.extensions.sparkplug.aware.utils;
 
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.MessageFormat;
 import java.util.Date;
 
 public class MetricMessage {
 
-    private static final String JSON_MESSAGE_FORMAT =
-            "'{'\n" +
+    private static final @NotNull String JSON_MESSAGE_FORMAT = "'{'\n" +
             "    \"name\": \"{0}\", \n" +
             "    \"timestamp\": {1}, \n" +
             "    \"dataType\": \"{2}\", \n" +
@@ -33,12 +32,13 @@ public class MetricMessage {
     private MetricMessage() {
     }
 
-    public static String createJSON(final @NotNull String name, final @NotNull Date timestamp, final @NotNull String value, final @NotNull String dataType) {
-        final MessageFormat mf = new MessageFormat(JSON_MESSAGE_FORMAT);
+    public static String createJSON(
+            final @NotNull String name,
+            final @NotNull Date timestamp,
+            final @NotNull String value,
+            final @NotNull String dataType) {
+        final var mf = new MessageFormat(JSON_MESSAGE_FORMAT);
         return mf.format(new Object[]{
-                name,
-                timestamp != null ? timestamp.toInstant().getEpochSecond() : 0,
-                dataType,
-                value});
+                name, timestamp != null ? timestamp.toInstant().getEpochSecond() : 0, dataType, value});
     }
 }

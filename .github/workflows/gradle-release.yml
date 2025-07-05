@@ -1,9 +1,6 @@
 name: Create Release
 on:
   workflow_dispatch:
-    branches:
-      - main
-      - feature/**
     inputs:
       version:
         description: 'Version to release (e.g. 0.0.0)'

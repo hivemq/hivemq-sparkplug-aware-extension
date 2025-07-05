@@ -16,12 +16,11 @@
 package com.hivemq.extensions.sparkplug.aware;
 
 import com.hivemq.extension.sdk.api.ExtensionMain;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
-import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.parameter.*;
 import com.hivemq.extension.sdk.api.services.Services;
-import com.hivemq.extension.sdk.api.services.intializer.InitializerRegistry;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +37,13 @@ import java.io.File;
 public class SparkplugAwareMain implements ExtensionMain {
 
     private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugAwareMain.class);
+
     private @Nullable SparkplugConfiguration configuration;
 
     @Override
     public void extensionStart(
             final @NotNull ExtensionStartInput extensionStartInput,
             final @NotNull ExtensionStartOutput extensionStartOutput) {
-
         try {
             final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
             //read & validate configuration
@@ -54,7 +53,7 @@ public class SparkplugAwareMain implements ExtensionMain {
 
             addPublishModifier();
 
-            final ExtensionInformation extensionInformation = extensionStartInput.getExtensionInformation();
+            final var extensionInformation = extensionStartInput.getExtensionInformation();
             log.info("Started {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
 
             log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_TOPIC);
@@ -62,8 +61,6 @@ public class SparkplugAwareMain implements ExtensionMain {
             log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_TOPIC);
             log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_RETAIN);
             log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NDEATH_TIMESTAMP);
-
-
         } catch (final Exception e) {
             log.error("Exception thrown at extension start: ", e);
         }
@@ -73,41 +70,37 @@ public class SparkplugAwareMain implements ExtensionMain {
     public void extensionStop(
             final @NotNull ExtensionStopInput extensionStopInput,
             final @NotNull ExtensionStopOutput extensionStopOutput) {
-
-        final ExtensionInformation extensionInformation = extensionStopInput.getExtensionInformation();
+        final var extensionInformation = extensionStopInput.getExtensionInformation();
         log.info("Stopped {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
     }
 
     private void addPublishModifier() {
-        final InitializerRegistry initializerRegistry = Services.initializerRegistry();
-        final SparkplugPublishInboundInterceptor sparkplugPublishInboundInterceptor =
+        final var initializerRegistry = Services.initializerRegistry();
+        final var sparkplugPublishInboundInterceptor =
                 new SparkplugPublishInboundInterceptor(configuration, Services.publishService());
-        final SparkplugPublishOutboundInterceptor sparkplugPublishOutboundInterceptor =
-                new SparkplugPublishOutboundInterceptor(configuration);
-        final SparkplugSubscribeInterceptor sparkplugSubscribeInterceptor =
-                new SparkplugSubscribeInterceptor(configuration);
+        final var sparkplugPublishOutboundInterceptor = new SparkplugPublishOutboundInterceptor(configuration);
+        final var sparkplugSubscribeInterceptor = new SparkplugSubscribeInterceptor(configuration);
 
-        initializerRegistry.setClientInitializer(
-                (initializerInput, clientContext) -> {
-                    clientContext.addPublishInboundInterceptor(sparkplugPublishInboundInterceptor);
-                    clientContext.addPublishOutboundInterceptor(sparkplugPublishOutboundInterceptor);
-                    clientContext.addSubscribeInboundInterceptor(sparkplugSubscribeInterceptor);
-                });
+        initializerRegistry.setClientInitializer((initializerInput, clientContext) -> {
+            clientContext.addPublishInboundInterceptor(sparkplugPublishInboundInterceptor);
+            clientContext.addPublishOutboundInterceptor(sparkplugPublishOutboundInterceptor);
+            clientContext.addSubscribeInboundInterceptor(sparkplugSubscribeInterceptor);
+        });
     }
 
     private boolean configurationValidated(
-            final @NotNull ExtensionStartOutput extensionStartOutput, final @NotNull File extensionHomeFolder) {
+            final @NotNull ExtensionStartOutput extensionStartOutput,
+            final @NotNull File extensionHomeFolder) {
         boolean isValid;
         configuration = new SparkplugConfiguration(new File(extensionHomeFolder, "conf"));
         try {
             isValid = configuration.readPropertiesFromFile();
             configuration.getSparkplugVersion();
             configuration.getSparkplugSysTopic();
-        } catch (Exception any) {
+        } catch (final Exception any) {
             isValid = false;
             log.error("Could not read properties", any);
         }
-
         if (!isValid) {
             extensionStartOutput.preventExtensionStartup("Could not read properties");
         }
