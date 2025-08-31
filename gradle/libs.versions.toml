@@ -1,7 +1,7 @@
 [versions]
 assertj = "3.27.4"
 hivemq-extensionSdk = "4.29.0"
-jackson = "2.19.2"
+jackson = "2.20.0"
 jackson-asl = "1.9.13"
 jetbrains-annotations = "26.0.2"
 junit-jupiter = "5.10.0"
