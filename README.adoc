@@ -11,11 +11,10 @@
 image:https://img.shields.io/badge/Extension_Type-Public-orange?style=for-the-badge[Extension Type]
 image:https://img.shields.io/github/v/release/hivemq/hivemq-sparkplug-aware-extension?style=for-the-badge[GitHub release (latest by date),link=https://github.com/hivemq/hivemq-sparkplug-aware-extension/releases/latest]
 image:https://img.shields.io/github/license/hivemq/hivemq-sparkplug-aware-extension?style=for-the-badge&color=brightgreen[GitHub,link=LICENSE]
-image:https://img.shields.io/github/actions/workflow/status/hivemq/hivemq-sparkplug-aware-extension/gradle-build.yml?branch=main&style=for-the-badge[GitHub Workflow Status,link=https://github.com/hivemq/hivemq-sparkplug-aware-extension/actions/workflows/gradle-build.yml?query=branch%3Amain]
 
 == Purpose
 
-This HiveMQ Sparkplug aware extension has the purpose to fulfil the new  link:https://github.com/eclipse/sparkplug[Sparkplug Release] of the Sparkplug specification extend HiveMQ with the functionality of a Sparkplug Aware Broker wich is an optional Requirement.
+This HiveMQ Sparkplug aware extension has the purpose to fulfil the new link:https://github.com/eclipse/sparkplug[Sparkplug Release] of the Sparkplug specification extend HiveMQ with the functionality of a Sparkplug Aware Broker which is an optional Requirement.
 
 This includes on top of providing the necessary native HiveMQ MQTT features like Retained Message handling and all QoS levels the following
 
@@ -35,7 +34,7 @@ The Extension expects the configuration file `conf/sparkplug.properties` in the 
 This configuration file contains a set of properties to align the behavior of the extension.
 
 The topic structure root for the systopic, and the sparkplug version can be configured.
-Compression is switched of by default.
+Compression is switched off by default.
 An optional log output of the payload in formatted JSON can be configured.
 The JSON is available from a separate logger.
 The Message Expiry of the retained messages send to the systopic can be configured to a smaller lifetime.
