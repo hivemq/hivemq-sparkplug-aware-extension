@@ -7,7 +7,7 @@ jetbrains-annotations = "26.0.2-1"
 junit-jupiter = "5.10.0"
 mockito = "5.20.0"
 protobuf = "3.25.8"
-tahu = "1.0.14"
+tahu = "1.0.17"
 
 [libraries]
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
