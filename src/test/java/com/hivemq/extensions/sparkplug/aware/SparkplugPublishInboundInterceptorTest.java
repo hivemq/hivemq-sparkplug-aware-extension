@@ -57,8 +57,11 @@ class SparkplugPublishInboundInterceptorTest {
 
     private @NotNull Path file;
 
+    @TempDir
+    private @NotNull Path tempDir;
+
     @BeforeEach
-    void setUp(final @TempDir @NotNull Path tempDir) {
+    void setUp() {
         when(publishInboundOutput.getPublishPacket()).thenReturn(publishPacket);
 
         file = tempDir.resolve("sparkplug.properties");
