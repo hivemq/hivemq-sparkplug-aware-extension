@@ -25,6 +25,12 @@ hivemqExtension {
 
 java {
     toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.compileJava {
+    javaCompiler = javaToolchains.compilerFor {
         languageVersion = JavaLanguageVersion.of(11)
     }
 }
