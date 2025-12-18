@@ -21,7 +21,6 @@ import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboun
 import com.hivemq.extension.sdk.api.packets.publish.ModifiableOutboundPublish;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
-import org.eclipse.tahu.SparkplugInvalidTypeException;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.Metric;
 import org.eclipse.tahu.message.model.SparkplugBPayload;
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -61,8 +59,11 @@ class SparkplugPublishOutboundInterceptorTest {
     private @NotNull SparkplugPublishOutboundInterceptor sparkplugPublishOutboundInterceptor;
     private byte @NotNull [] encodedSparkplugPayload;
 
+    @TempDir
+    private @NotNull Path tempDir;
+
     @BeforeEach
-    void setUp(final @TempDir @NotNull Path tempDir) throws Exception {
+    void setUp() throws Exception {
         when(publishOutboundInput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
         when(publishOutboundInput.getPublishPacket()).thenReturn(publishPacket);
         when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);

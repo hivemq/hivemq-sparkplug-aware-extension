@@ -59,8 +59,11 @@ class SparkplugSubscribeInterceptorTest {
     private @NotNull SparkplugSubscribeInterceptor sparkplugSubscribeInterceptor;
     private byte @NotNull [] encodedSparkplugPayload;
 
+    @TempDir
+    private @NotNull Path tempDir;
+
     @BeforeEach
-    void setUp(final @TempDir @NotNull Path tempDir) throws Exception {
+    void setUp() throws Exception {
         file = tempDir.resolve("sparkplug.properties");
         final var configuration = new SparkplugConfiguration(file.toFile());
         sparkplugSubscribeInterceptor = new SparkplugSubscribeInterceptor(configuration);
