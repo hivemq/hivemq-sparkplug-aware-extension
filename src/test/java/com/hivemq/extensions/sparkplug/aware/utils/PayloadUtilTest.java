@@ -38,7 +38,7 @@ import static org.eclipse.tahu.message.model.MetricDataType.Text;
 
 class PayloadUtilTest {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(PayloadUtilTest.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(PayloadUtilTest.class);
 
     private final @NotNull List<Metric> metrics = new ArrayList<>();
 
@@ -46,7 +46,7 @@ class PayloadUtilTest {
     void asJSONFormattedTest() throws IOException, SparkplugInvalidTypeException {
         final var payload = ByteBuffer.wrap(createSparkplugBPayload());
         final var json = asJSONFormatted(getPayloadAsJSON(payload));
-        log.info(json);
+        LOG.info(json);
         assertThat(json).isNotEmpty();
     }
 
@@ -54,7 +54,7 @@ class PayloadUtilTest {
     void getPayloadAsJSONTest() throws IOException, SparkplugInvalidTypeException {
         final var payload = ByteBuffer.wrap(createSparkplugBPayload());
         final var json = getPayloadAsJSON(payload);
-        log.info(json);
+        LOG.info(json);
         assertThat(json).isNotEmpty();
     }
 

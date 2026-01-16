@@ -19,7 +19,7 @@ import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundInput;
 import com.hivemq.extension.sdk.api.interceptor.publish.parameter.PublishOutboundOutput;
 import com.hivemq.extension.sdk.api.packets.publish.ModifiableOutboundPublish;
-import com.hivemq.extension.sdk.api.packets.publish.ModifiablePublishPacket;
+import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.Metric;
@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,66 +40,153 @@ import java.util.Optional;
 import static org.eclipse.tahu.message.model.MetricDataType.Int32;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Anja Helmbrecht-Schaar
- */
 class SparkplugPublishOutboundInterceptorTest {
-
-    private final @NotNull PublishOutboundInput publishOutboundInput = mock();
-    private final @NotNull PublishOutboundOutput publishOutboundOutput = mock();
-    private final @NotNull ModifiablePublishPacket publishPacket = mock();
-    private final @NotNull ModifiableOutboundPublish modifiableOutboundPublish = mock();
-    private final @NotNull ClientInformation clientInformation = mock();
-
-    private final @NotNull List<Metric> metrics = new ArrayList<>();
-
-    private @NotNull SparkplugPublishOutboundInterceptor sparkplugPublishOutboundInterceptor;
-    private byte @NotNull [] encodedSparkplugPayload;
 
     @TempDir
     private @NotNull Path tempDir;
 
+    private final @NotNull PublishOutboundInput publishOutboundInput = mock();
+    private final @NotNull PublishOutboundOutput publishOutboundOutput = mock();
+    private final @NotNull PublishPacket publishPacket = mock();
+    private final @NotNull ModifiableOutboundPublish modifiableOutboundPublish = mock();
+    private final @NotNull ClientInformation clientInformation = mock();
+
+    private @NotNull Path file;
+    private byte @NotNull [] encodedSparkplugPayload;
+
     @BeforeEach
     void setUp() throws Exception {
-        when(publishOutboundInput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
-        when(publishOutboundInput.getPublishPacket()).thenReturn(publishPacket);
-        when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
+        file = tempDir.resolve("sparkplug.properties");
 
-        final var file = tempDir.resolve("sparkplug.properties");
-        final var configuration = new SparkplugConfiguration(file.toFile());
-        sparkplugPublishOutboundInterceptor = new SparkplugPublishOutboundInterceptor(configuration);
+        when(publishOutboundInput.getPublishPacket()).thenReturn(publishPacket);
+        when(publishOutboundInput.getClientInformation()).thenReturn(clientInformation);
+        when(clientInformation.getClientId()).thenReturn("testClient");
+
+        when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
 
         encodedSparkplugPayload = createSparkplugBPayload();
     }
 
     @Test
-    void topicNBIRTH_payloadNotModified() {
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/edgeItem/node");
-        when(clientInformation.getClientId()).thenReturn("orl");
-        when(publishOutboundInput.getClientInformation()).thenReturn(clientInformation);
-        sparkplugPublishOutboundInterceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
-        verify(publishPacket, times(0)).setPayload(any());
+    void nbirth_payload_not_modified() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NBIRTH/edgeNode");
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish, never()).setPayload(any());
     }
 
     @Test
-    void topicNDEATH_payloadModified() {
-        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDEATH/edgeItem/node");
+    void dbirth_payload_not_modified() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/DBIRTH/edgeNode/device");
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish, never()).setPayload(any());
+    }
+
+    @Test
+    void ndeath_payload_timestamp_modified() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDEATH/edgeNode");
         when(modifiableOutboundPublish.getPayload()).thenReturn(Optional.of(ByteBuffer.wrap(encodedSparkplugPayload)));
-        when(publishOutboundOutput.getPublishPacket()).thenReturn(modifiableOutboundPublish);
-        when(clientInformation.getClientId()).thenReturn("42");
-        when(publishOutboundInput.getClientInformation()).thenReturn(clientInformation);
-        sparkplugPublishOutboundInterceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
-        verify(modifiableOutboundPublish, times(1)).setPayload(any());
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish).setPayload(any(ByteBuffer.class));
+    }
+
+    @Test
+    void ddeath_payload_not_modified() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/DDEATH/edgeNode/device");
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        // DDEATH is not handled by the outbound interceptor (only NDEATH)
+        verify(modifiableOutboundPublish, never()).setPayload(any());
+    }
+
+    @Test
+    void ddata_payload_not_modified() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/DDATA/edgeNode/device");
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish, never()).setPayload(any());
+    }
+
+    @Test
+    void ndata_payload_not_modified() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDATA/edgeNode");
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish, never()).setPayload(any());
+    }
+
+    @Test
+    void non_sparkplug_topic_ignored() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("some/other/topic");
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish, never()).setPayload(any());
+    }
+
+    @Test
+    void ndeath_without_payload_logs_warning() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        when(publishPacket.getTopic()).thenReturn("spBv1.0/group/NDEATH/edgeNode");
+        when(modifiableOutboundPublish.getPayload()).thenReturn(Optional.empty());
+
+        // should not throw, just log warning
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish, never()).setPayload(any());
+    }
+
+    @Test
+    void wrong_sparkplug_version_ignored() throws Exception {
+        final var interceptor = createInterceptor(List.of("sparkplug.version=spBv1.0"));
+
+        // using wrong version in topic
+        when(publishPacket.getTopic()).thenReturn("spBv2.0/group/NDEATH/edgeNode");
+
+        interceptor.onOutboundPublish(publishOutboundInput, publishOutboundOutput);
+
+        verify(modifiableOutboundPublish, never()).setPayload(any());
+    }
+
+    private SparkplugPublishOutboundInterceptor createInterceptor(
+            final @NotNull List<String> properties) throws Exception {
+        Files.write(file, properties);
+        final var configuration = new SparkplugConfiguration(file.getParent().toFile());
+        configuration.readPropertiesFromFile();
+        return new SparkplugPublishOutboundInterceptor(configuration);
     }
 
     private byte @NotNull [] createSparkplugBPayload() throws Exception {
-        // add a 'real time' metric
-        metrics.add(new Metric.MetricBuilder("a metric", Int32, 42).timestamp(new Date()).createMetric());
-        final var sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, "alf", null);
+        final var metrics = new ArrayList<Metric>();
+        metrics.add(new Metric.MetricBuilder("testMetric", Int32, 42).timestamp(new Date()).createMetric());
+        final var sparkplugBPayload = new SparkplugBPayload(new Date(), metrics, 1L, null, null);
         return new SparkplugBPayloadEncoder().getBytes(sparkplugBPayload, false);
     }
 }
