@@ -3,12 +3,13 @@ import org.gradle.crypto.checksum.Checksum
 plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.defaults)
+    alias(libs.plugins.oci)
     alias(libs.plugins.license)
     alias(libs.plugins.checksum)
     alias(libs.plugins.release)
 }
 
-group = "com.hivemq.extensions.sparkplug.aware"
+group = "com.hivemq.extensions"
 description = "HiveMQ Sparkplug Aware Extension"
 
 hivemqExtension {
@@ -54,6 +55,40 @@ tasks.register<Checksum>("checksum") {
     outputDirectory = layout.buildDirectory.dir("hivemq-extension")
 }
 
+oci {
+    registries {
+        dockerHub {
+            optionalCredentials()
+        }
+    }
+    imageMapping {
+        mapModule("com.hivemq", "hivemq-enterprise") {
+            toImage("hivemq/hivemq4")
+        }
+    }
+    imageDefinitions {
+        register("main") {
+            allPlatforms {
+                dependencies {
+                    runtime("com.hivemq:hivemq-enterprise:latest") { isChanging = true }
+                }
+                layer("main") {
+                    contents {
+                        permissions("opt/hivemq/", 0b111_111_101)
+                        permissions("opt/hivemq/extensions/", 0b111_111_101)
+                        into("opt/hivemq/extensions") {
+                            permissions("*/", 0b111_111_101)
+                            permissions("*/conf/sparkplug.properties", 0b110_110_100)
+                            permissions("*/hivemq-extension.xml", 0b110_110_100)
+                            from(zipTree(tasks.hivemqExtensionZip.flatMap { it.archiveFile }))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Suppress("UnstableApiUsage")
 testing {
     suites {
@@ -65,6 +100,24 @@ testing {
                 compileOnly(libs.jetbrains.annotations)
                 implementation(libs.assertj)
                 implementation(libs.mockito)
+            }
+        }
+        "integrationTest"(JvmTestSuite::class) {
+            dependencies {
+                compileOnly(libs.jetbrains.annotations)
+                implementation(libs.assertj)
+                implementation(libs.hivemq.mqttClient)
+                implementation(libs.testcontainers)
+                implementation(libs.testcontainers.hivemq)
+                implementation(libs.testcontainers.junitJupiter)
+                implementation(libs.gradleOci.junitJupiter)
+                implementation(libs.tahu)
+                runtimeOnly(libs.logback.classic)
+            }
+            oci.of(this) {
+                imageDependencies {
+                    runtime(project).tag("latest")
+                }
             }
         }
     }
