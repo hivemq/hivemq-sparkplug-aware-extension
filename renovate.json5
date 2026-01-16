@@ -6,4 +6,11 @@
   addLabels: [
     'integrations-team-coordination',
   ],
+  packageRules: [
+    {
+      matchPackageNames: ['org.eclipse.tahu:tahu-core'],
+      allowedVersions: '<=1.0.14',
+      description: 'Versions newer than 1.0.14 require Java 17, see https://github.com/eclipse-tahu/tahu/issues/430',
+    },
+  ],
 }
