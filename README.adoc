@@ -14,26 +14,24 @@ image:https://img.shields.io/github/license/hivemq/hivemq-sparkplug-aware-extens
 
 == Purpose
 
-This HiveMQ Sparkplug aware extension has the purpose to fulfil the new link:https://github.com/eclipse/sparkplug[Sparkplug Release] of the Sparkplug specification extend HiveMQ with the functionality of a Sparkplug Aware Broker which is an optional Requirement.
+This HiveMQ Sparkplug aware extension has the purpose to fulfil the new link:https://github.com/eclipse/sparkplug[Sparkplug Release] of the Sparkplug specification extend HiveMQ with the functionality of a Sparkplug Aware Broker which is an optional requirement.
 
-This includes on top of providing the necessary native HiveMQ MQTT features like Retained Message handling and all QoS levels the following
+On top of providing the necessary native HiveMQ MQTT features like Retained Message handling and all QoS levels, it includes the following requirements:
 
-_REQUIREMENTS:_
-
-* A Sparkplug Aware MQTT Server MUST store NBIRTH and DBIRTH messages as they pass through the MQTT Server
-* A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id`
-* A Sparkplug Aware MQTT Server MUST make NBIRTH messages available on the topic: $sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id with the MQTT retain flag set to true
-* A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id`
-* A Sparkplug Aware MQTT Server MUST make DBIRTH messages available on this topic with the MQTT retain flag set to true
-* A Sparkplug Aware MQTT Server MAY replace the timestamp of NDEATH messages.
-If it does, it MUST set the timestamp to the UTC time at which it attempts to deliver the NDEATH to subscribed client.
+* A Sparkplug Aware MQTT server MUST store `NBIRTH` and `DBIRTH` messages as they pass through the MQTT server.
+* A Sparkplug Aware MQTT server MUST make `NBIRTH` messages available on a topic of the form `$sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id`.
+* A Sparkplug Aware MQTT server MUST make `NBIRTH` messages available on the topic `$sparkplug/certificates/namespace/group_id/NBIRTH/edge_node_id` with the MQTT retain flag set to `true`.
+* A Sparkplug Aware MQTT server MUST make `DBIRTH` messages available on a topic of the form: `$sparkplug/certificates/namespace/group_id/DBIRTH/edge_node_id/device_id`.
+* A Sparkplug Aware MQTT server MUST make `DBIRTH` messages available on this topic with the MQTT retain flag set to `true`.
+* A Sparkplug Aware MQTT server MAY replace the timestamp of `NDEATH` messages.
+If it does, it MUST set the timestamp to the UTC time at which it attempts to deliver the `NDEATH` to subscribed client.
 
 == Configuration
 
 The Extension expects the configuration file `conf/sparkplug.properties` in the extension home folder.
 This configuration file contains a set of properties to align the behavior of the extension.
 
-The topic structure root for the systopic, and the sparkplug version can be configured.
+The topic structure root for the systopic, and the Sparkplug version can be configured.
 Compression is switched off by default.
 An optional log output of the payload in formatted JSON can be configured.
 The JSON is available from a separate logger.
@@ -42,22 +40,23 @@ If not set, the standard expiration of 4.294.967.296 seconds for a message is us
 
 *Default properties are:*
 
-```
+[source,properties]
+----
 sparkplug.version=spBv1.0
 sparkplug.systopic=$sparkplug/certificates/
 sparkplug.compression=false
 sparkplug.json.log=false
 sparkplug.systopic.msgExpiry=4294967296
-```
+----
 
 == JSON Logging configuration
 
-When using logger sparkplug.json.log, add the configuration settings `appender` and `logger` from the `src/hivemq-extension/conf/logback-example.xml` file to your `hivemq/conf/logback.xml` configuration.
-With this, the sparkplug payload will be written as json into the separate file `hivemq/log/sparkplug-json-payload.log`.
+When using logger `sparkplug.json.log`, add the configuration settings `appender` and `logger` from the `src/hivemq-extension/conf/logback-example.xml` file to your `hivemq/conf/logback.xml` configuration.
+With this, the Sparkplug payload will be written as JSON into the separate file `hivemq/log/sparkplug-json-payload.log`.
 
 == Installation
 
-. Clone this repository into a Java 11 Gradle project.
+. Clone this repository into a Java 21 Gradle project.
 . Execute the Gradle task `hivemqExtensionZip` to build the extension.
 . Move the file: `build/hivemq-extension/hivemq-sparkplug-aware-extension-4.X.X.zip` to the directory: `HIVEMQ_HOME/extensions`
 . Unzip the file.
