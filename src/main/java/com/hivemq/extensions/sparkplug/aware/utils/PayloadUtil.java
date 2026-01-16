@@ -15,10 +15,10 @@
  */
 package com.hivemq.extensions.sparkplug.aware.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hivemq.extension.sdk.api.packets.publish.PublishPacket;
 import com.hivemq.extensions.sparkplug.aware.topics.MessageType;
 import com.hivemq.extensions.sparkplug.aware.topics.TopicStructure;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.tahu.message.SparkplugBPayloadDecoder;
 import org.eclipse.tahu.message.SparkplugBPayloadEncoder;
 import org.eclipse.tahu.message.model.SparkplugBPayload;

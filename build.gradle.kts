@@ -43,7 +43,6 @@ repositories {
 dependencies {
     compileOnly(libs.jetbrains.annotations)
     implementation(libs.tahu)
-    implementation(libs.jackson.mapper.asl)
     implementation(libs.jackson)
     implementation(libs.jackson.databind)
     implementation(libs.protobuf)
