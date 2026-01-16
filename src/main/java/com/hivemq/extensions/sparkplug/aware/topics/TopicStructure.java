@@ -19,20 +19,39 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Topic structure meta object to create sparkplug structure and
- * validate the incoming topic parts against sparkplug topic specification
+ * Represents a parsed Sparkplug topic structure and provides validation against the Sparkplug specification.
+ * <p>
+ * This class parses MQTT topic strings into their Sparkplug components and validates them according
+ * to the Sparkplug topic structure specification:
+ * <pre>
+ * namespace/group_id/message_type/edge_node_id/[device_id]
+ * </pre>
+ * or for STATE messages:
+ * <pre>
+ * namespace/group_id/STATE/scada_host_id
+ * </pre>
+ * <p>
+ * The class extracts and provides access to:
+ * <ul>
+ *     <li>Namespace - typically the Sparkplug version (e.g., "spBv1.0")</li>
+ *     <li>Group ID - logical grouping of edge nodes</li>
+ *     <li>Message Type - NBIRTH, DBIRTH, NDEATH, DDEATH, NDATA, DDATA, NCMD, DCMD, or STATE</li>
+ *     <li>Edge of Network (EoN) ID - identifier for the edge node</li>
+ *     <li>Device ID - optional identifier for devices under an edge node</li>
+ *     <li>SCADA ID - identifier for SCADA host (STATE messages only)</li>
+ * </ul>
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
  */
 public class TopicStructure {
 
     private final int topicLevels;
-    private @NotNull String namespace;
-    private @NotNull String groupId;
-    private @NotNull MessageType messageType;
-    private @Nullable String scadaId;
-    private @Nullable String eonId;
-    private @Nullable String deviceId;
+    private final @NotNull String namespace;
+    private final @NotNull String groupId;
+    private final @NotNull MessageType messageType;
+    private final @Nullable String scadaId;
+    private final @Nullable String eonId;
+    private final @Nullable String deviceId;
 
     public TopicStructure(final @NotNull String topic) {
         final var arr = topic.split("/");
@@ -43,21 +62,24 @@ public class TopicStructure {
             messageType = MessageType.fromString(arr[2]);
             if (MessageType.STATE == messageType) {
                 scadaId = arr[3];
+                eonId = null;
             } else {
+                scadaId = null;
                 eonId = arr[3];
             }
             if (topicLevels > 4) {
                 deviceId = arr[4];
+            } else {
+                deviceId = null;
             }
+        } else {
+            namespace = "";
+            groupId = "";
+            messageType = MessageType.UNKNOWN;
+            scadaId = null;
+            eonId = null;
+            deviceId = null;
         }
-    }
-
-    private boolean isValidNamespace(final @NotNull String sparkplugVersion) {
-        return sparkplugVersion.matches(namespace);
-    }
-
-    private boolean isValidMessageType() {
-        return (messageType != MessageType.UNKNOWN);
     }
 
     public @NotNull String getNamespace() {
@@ -80,14 +102,6 @@ public class TopicStructure {
         return deviceId;
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isValid(final @NotNull String sparkplugVersion) {
-        return topicLevels > 3 &&
-                isValidNamespace(sparkplugVersion) &&
-                isValidMessageType() &&
-                (scadaId != null || eonId != null);
-    }
-
     @Override
     public @NotNull String toString() {
         return "TopicStructure{" +
@@ -97,12 +111,28 @@ public class TopicStructure {
                 groupId +
                 "', messageType='" +
                 messageType +
+                "', scadaId='" +
+                scadaId +
                 "', eonId='" +
                 eonId +
                 "', deviceId='" +
                 deviceId +
-                "', scadaId='" +
-                scadaId +
                 "'}";
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isValid(final @NotNull String sparkplugVersion) {
+        return topicLevels > 3 &&
+                isValidNamespace(sparkplugVersion) &&
+                isValidMessageType() &&
+                (scadaId != null || eonId != null);
+    }
+
+    private boolean isValidNamespace(final @NotNull String sparkplugVersion) {
+        return sparkplugVersion.matches(namespace);
+    }
+
+    private boolean isValidMessageType() {
+        return (messageType != MessageType.UNKNOWN);
     }
 }

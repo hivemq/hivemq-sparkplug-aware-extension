@@ -29,13 +29,14 @@ import java.util.Properties;
 /**
  * Load the content of a {@link File} into {@link Properties}.
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
  */
 public abstract class PropertiesReader {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(PropertiesReader.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(PropertiesReader.class);
 
     private final @NotNull File configFilePath;
+
     @Nullable Properties properties;
 
     PropertiesReader(final @NotNull File configFilePath) {
@@ -53,7 +54,7 @@ public abstract class PropertiesReader {
         try {
             loadProperties(file);
         } catch (final IOException e) {
-            log.error("Not able to load configuration file '{}'", file.getAbsolutePath());
+            LOG.error("Not able to load configuration file '{}'", file.getAbsolutePath());
             return false;
         }
 

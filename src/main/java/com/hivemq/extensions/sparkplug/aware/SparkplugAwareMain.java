@@ -16,53 +16,65 @@
 package com.hivemq.extensions.sparkplug.aware;
 
 import com.hivemq.extension.sdk.api.ExtensionMain;
-import com.hivemq.extension.sdk.api.parameter.*;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
+import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 /**
- * This is the main class of the extension,
- * which is instantiated either during the HiveMQ start up process (if extension is enabled)
- * or when HiveMQ is already started by enabling the extension.
+ * Main entry point for the HiveMQ Sparkplug Aware Extension.
+ * <p>
+ * This extension implements Sparkplug awareness by intercepting and modifying MQTT messages
+ * to ensure compliance with Sparkplug specification requirements. The extension is instantiated
+ * either during the HiveMQ startup process (if enabled) or dynamically when enabled on a running
+ * HiveMQ broker.
+ * <p>
+ * Key functionality includes:
+ * <ul>
+ *     <li>Forwarding NBIRTH and DBIRTH messages to system topics with retained flag</li>
+ *     <li>Updating timestamps in NDEATH messages to reflect actual disconnection time</li>
+ *     <li>Preserving retained flag behavior for Sparkplug system topic subscriptions</li>
+ * </ul>
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
  * @since 4.0.0
  */
 public class SparkplugAwareMain implements ExtensionMain {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugAwareMain.class);
-
-    private @Nullable SparkplugConfiguration configuration;
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugAwareMain.class);
 
     @Override
     public void extensionStart(
             final @NotNull ExtensionStartInput extensionStartInput,
             final @NotNull ExtensionStartOutput extensionStartOutput) {
         try {
-            final File extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
-            //read & validate configuration
-            if (!configurationValidated(extensionStartOutput, extensionHomeFolder) || configuration == null) {
+            // read & validate configuration
+            final var extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
+            final var configuration = new SparkplugConfiguration(new File(extensionHomeFolder, "conf"));
+            if (!configurationValidated(configuration)) {
+                extensionStartOutput.preventExtensionStartup("Could not read properties");
                 return;
             }
 
-            addPublishModifier();
+            addPublishModifier(configuration);
 
             final var extensionInformation = extensionStartInput.getExtensionInformation();
-            log.info("Started {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
+            LOG.info("Started {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
 
-            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_TOPIC);
-            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_RETAIN);
-            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_TOPIC);
-            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_RETAIN);
-            log.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NDEATH_TIMESTAMP);
+            LOG.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_TOPIC);
+            LOG.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_DBIRTH_MQTT_RETAIN);
+            LOG.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_TOPIC);
+            LOG.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NBIRTH_MQTT_RETAIN);
+            LOG.debug("Add Awareness: {} ", AwareRequirements.CONFORMANCE_MQTT_AWARE_NDEATH_TIMESTAMP);
         } catch (final Exception e) {
-            log.error("Exception thrown at extension start: ", e);
+            LOG.error("Exception thrown at extension start: ", e);
         }
     }
 
@@ -71,10 +83,22 @@ public class SparkplugAwareMain implements ExtensionMain {
             final @NotNull ExtensionStopInput extensionStopInput,
             final @NotNull ExtensionStopOutput extensionStopOutput) {
         final var extensionInformation = extensionStopInput.getExtensionInformation();
-        log.info("Stopped {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
+        LOG.info("Stopped {}:{}", extensionInformation.getName(), extensionInformation.getVersion());
     }
 
-    private void addPublishModifier() {
+    private boolean configurationValidated(final @NotNull SparkplugConfiguration configuration) {
+        try {
+            final var isValid = configuration.readPropertiesFromFile();
+            configuration.getSparkplugVersion();
+            configuration.getSparkplugSysTopic();
+            return isValid;
+        } catch (final Exception any) {
+            LOG.error("Could not read properties", any);
+            return false;
+        }
+    }
+
+    private void addPublishModifier(final @NotNull SparkplugConfiguration configuration) {
         final var initializerRegistry = Services.initializerRegistry();
         final var sparkplugPublishInboundInterceptor =
                 new SparkplugPublishInboundInterceptor(configuration, Services.publishService());
@@ -86,24 +110,5 @@ public class SparkplugAwareMain implements ExtensionMain {
             clientContext.addPublishOutboundInterceptor(sparkplugPublishOutboundInterceptor);
             clientContext.addSubscribeInboundInterceptor(sparkplugSubscribeInterceptor);
         });
-    }
-
-    private boolean configurationValidated(
-            final @NotNull ExtensionStartOutput extensionStartOutput,
-            final @NotNull File extensionHomeFolder) {
-        boolean isValid;
-        configuration = new SparkplugConfiguration(new File(extensionHomeFolder, "conf"));
-        try {
-            isValid = configuration.readPropertiesFromFile();
-            configuration.getSparkplugVersion();
-            configuration.getSparkplugSysTopic();
-        } catch (final Exception any) {
-            isValid = false;
-            log.error("Could not read properties", any);
-        }
-        if (!isValid) {
-            extensionStartOutput.preventExtensionStartup("Could not read properties");
-        }
-        return isValid;
     }
 }

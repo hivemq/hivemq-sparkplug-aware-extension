@@ -35,14 +35,20 @@ import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.logFormatt
 import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.modifySparkplugTimestamp;
 
 /**
- * {@link PublishInboundInterceptor},
- * forwards each incoming NBIRTH and DBIRTH Message in a sparkplug topic structure into a system topic.
+ * Interceptor for inbound PUBLISH packets that processes Sparkplug lifecycle messages.
+ * <p>
+ * This interceptor performs the following operations:
+ * <ul>
+ *     <li>Forwards each incoming NBIRTH and DBIRTH message to a corresponding system topic with retained flag</li>
+ *     <li>Updates timestamps in NDEATH messages to reflect actual disconnection time</li>
+ *     <li>Optionally logs formatted payload data when JSON logging is enabled</li>
+ * </ul>
  *
  * @since 4.3.1
  */
 public class SparkplugPublishInboundInterceptor implements PublishInboundInterceptor {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugPublishInboundInterceptor.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugPublishInboundInterceptor.class);
 
     private final @NotNull PublishService publishService;
     private final @NotNull PublishBuilder publishBuilder;
@@ -80,18 +86,18 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
         final var publishPacket = publishInboundInput.getPublishPacket();
         final var origin = publishPacket.getTopic();
         final var topicStructure = new TopicStructure(origin);
-        if (log.isTraceEnabled()) {
-            log.trace("INBOUND PUBLISH at: {} from: {}", origin, clientId);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("INBOUND PUBLISH at '{}' from '{}'", origin, clientId);
         }
         if (!topicStructure.isValid(sparkplugVersion)) {
-            // skip it is not a sparkplug publish
+            // skip it is not a Sparkplug publish
             return;
         }
         if (topicStructure.getMessageType() == MessageType.NBIRTH ||
                 topicStructure.getMessageType() == MessageType.DBIRTH) {
-            // it is a sparkplug publish
+            // it is a Sparkplug publish
             try {
-                // build the publish
+                // build the PUBLISH
                 publishBuilder.fromPublish(publishPacket);
                 publishBuilder.topic(sysTopic + origin);
                 publishBuilder.qos(Qos.AT_LEAST_ONCE);
@@ -100,7 +106,7 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
                 final var clone = publishBuilder.build();
                 publishToSysTopic(origin, clone);
             } catch (final Exception all) {
-                log.error("Publish to sysTopic {} failed: {}", sysTopic, all.getMessage());
+                LOG.error("Publish to sysTopic {} failed: {}", sysTopic, all.getMessage());
             }
         } else if (topicStructure.getMessageType() == MessageType.NDEATH) {
             final var modifiablePublishPacket = publishInboundOutput.getPublishPacket();
@@ -109,17 +115,17 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
                 try {
                     final var newDeath = modifySparkplugTimestamp(useCompression, byteBuffer);
                     modifiablePublishPacket.setPayload(newDeath);
-                    if (log.isTraceEnabled()) {
-                        log.trace("Modify timestamp of NDEATH message from: {}", origin);
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Modify timestamp of NDEATH message from: {}", origin);
                     }
                 } catch (final Exception all) {
-                    log.error("Modify NDEATH message from {} failed: {}", origin, all.getMessage());
-                    if (log.isTraceEnabled()) {
-                        log.trace("Original exception", all);
+                    LOG.error("Modify NDEATH message from {} failed: {}", origin, all.getMessage());
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Original exception", all);
                     }
                 }
             } else {
-                log.warn("No payload present in the sparkplug message");
+                LOG.warn("No payload present in the Sparkplug message");
             }
         }
         if (jsonLogEnabled) {
@@ -128,15 +134,15 @@ public class SparkplugPublishInboundInterceptor implements PublishInboundInterce
     }
 
     private void publishToSysTopic(final @NotNull String origin, final @NotNull Publish publish) {
-        // Asynchronously sent PUBLISH
+        // asynchronously sent PUBLISH
         final var future = publishService.publish(publish);
         future.whenComplete((aVoid, throwable) -> {
             if (throwable == null) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Published CLONE Msg from: {} to: {} ", origin, sysTopic + origin);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Published CLONE Msg from '{}' to '{}'", origin, sysTopic + origin);
                 }
             } else {
-                log.error("Publish to sysTopic: {} failed.", sysTopic + origin, throwable.fillInStackTrace());
+                LOG.error("Publish to sysTopic '{}' failed", sysTopic + origin, throwable.fillInStackTrace());
             }
         });
     }

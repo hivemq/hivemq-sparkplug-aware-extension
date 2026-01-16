@@ -17,48 +17,78 @@ package com.hivemq.extensions.sparkplug.aware.topics;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Enumeration of Sparkplug message types as defined in the Sparkplug specification.
+ * <p>
+ * Sparkplug defines specific message types for lifecycle management, data transmission,
+ * and command execution within an Industrial IoT infrastructure:
+ * <ul>
+ *     <li><b>BIRTH messages</b> - Announce availability and publish metrics/metadata</li>
+ *     <li><b>DEATH messages</b> - Announce disconnection or unavailability</li>
+ *     <li><b>DATA messages</b> - Publish metric data updates</li>
+ *     <li><b>CMD messages</b> - Receive commands from SCADA host applications</li>
+ *     <li><b>STATE messages</b> - SCADA host availability status</li>
+ * </ul>
+ * <p>
+ * Message types are prefixed with:
+ * <ul>
+ *     <li><b>N</b> - Node (Edge of Network node)</li>
+ *     <li><b>D</b> - Device (under an edge node)</li>
+ * </ul>
+ *
+ * @author David Sondermann
+ */
 public enum MessageType {
     /**
-     * THE BIRTH certificate message of a device
+     * Device BIRTH certificate message - announces device availability and publishes its metrics.
      */
     DBIRTH,
     /**
-     * THE DEATH certificate message of a device
+     * Device DEATH certificate message - announces device disconnection or unavailability.
      */
     DDEATH,
     /**
-     * THE BIRTH certificate message of an edge node
+     * Node BIRTH certificate message - announces edge node availability and publishes its metrics.
      */
     NBIRTH,
     /**
-     * THE DEATH certificate message of an edge node
+     * Node DEATH certificate message - announces edge node disconnection or unavailability.
      */
     NDEATH,
     /**
-     * THE DATA message message from a device
+     * Device DATA message - publishes metric data updates from a device.
      */
     DDATA,
     /**
-     * THE DATA message message from an edge node
+     * Node DATA message - publishes metric data updates from an edge node.
      */
     NDATA,
     /**
-     * THE Command message message from a SCADA host for a device
+     * Device COMMAND message - receives commands from a SCADA host application for a device.
      */
     DCMD,
     /**
-     * THE Command message message from a SCADA host for an edge node
+     * Node COMMAND message - receives commands from a SCADA host application for an edge node.
      */
     NCMD,
     /**
-     * THE Command message message from a SCADA host
+     * STATE message - indicates the online/offline state of a SCADA host application.
      */
     STATE,
     /**
-     * THE UNKNOWN - if something else was used
+     * UNKNOWN message type - represents any message type not matching the Sparkplug specification.
      */
     UNKNOWN;
 
+    /**
+     * Converts a string representation to a {@link MessageType} enum constant.
+     * <p>
+     * This method performs a case-sensitive match against the enum constant names.
+     * If no match is found, {@link #UNKNOWN} is returned.
+     *
+     * @param s the string to convert to a message type
+     * @return the corresponding {@link MessageType}, or {@link #UNKNOWN} if no match is found
+     */
     public static @NotNull MessageType fromString(final @NotNull String s) {
         try {
             return valueOf(s);

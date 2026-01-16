@@ -24,19 +24,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link SparkplugSubscribeInterceptor},
- * The standard behavior for sys topics is following:
- * if a subscriber exist - retained message will be published as not retained  - live publish
- * if no subscriber exist - retained message will be published as retained
+ * Interceptor for SUBSCRIBE packets that modifies subscription behavior for Sparkplug system topics.
  * <p>
- * The Interceptor modifies subscriptions
- * Subscriptions for the sys topic will be modified, so that the retained flag will be handled as it is published.
+ * The standard MQTT behavior for system topics is as follows:
+ * <ul>
+ *     <li>If a subscriber exists - retained messages will be published as non-retained (live publish)</li>
+ *     <li>If no subscriber exists - retained messages will be published as retained</li>
+ * </ul>
+ * <p>
+ * This interceptor modifies subscriptions to Sparkplug system topics so that the retained flag
+ * is preserved as published, ensuring consistent behavior regardless of subscriber presence.
  *
+ * @author David Sondermann
  * @since 4.3.1
  */
 public class SparkplugSubscribeInterceptor implements SubscribeInboundInterceptor {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugSubscribeInterceptor.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugSubscribeInterceptor.class);
 
     private final @NotNull String sysTopic;
 
@@ -51,7 +55,7 @@ public class SparkplugSubscribeInterceptor implements SubscribeInboundIntercepto
         final var clientID = subscribeInboundInput.getClientInformation().getClientId();
         for (final var subscription : subscribeInboundOutput.getSubscribePacket().getSubscriptions()) {
             if (subscription.getTopicFilter().startsWith(this.sysTopic)) {
-                log.debug("Modify Subscribe - to have retained as published {} from Client {}",
+                LOG.debug("Modify Subscribe - to have retained as published {} from Client {}",
                         subscription.getTopicFilter(),
                         clientID);
                 subscription.setRetainAsPublished(true);

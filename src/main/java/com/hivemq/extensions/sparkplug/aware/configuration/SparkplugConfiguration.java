@@ -24,14 +24,14 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * Reads a property file containing influxdb properties
- * and provides some utility methods for working with {@link Properties}.
+ * Reads a property file containing Sparkplug properties and provides some utility methods for working with
+ * {@link Properties}.
  *
- * @author Anja Helmbrecht-Schaar
+ * @author David Sondermann
  */
 public class SparkplugConfiguration extends PropertiesReader {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugConfiguration.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugConfiguration.class);
 
     private static final @NotNull String SPARKPLUG_VERSION = "sparkplug.version";
     private static final @NotNull String SPARKPLUG_VERSION_DEFAULT = "spBv1.0";
@@ -78,7 +78,7 @@ public class SparkplugConfiguration extends PropertiesReader {
         final var value = getProperty(key);
         if (value == null) {
             if (!defaultValue.isEmpty()) {
-                log.warn("No '{}' configured , using default: {}", key, defaultValue);
+                LOG.warn("No '{}' configured. Using default: {}", key, defaultValue);
             }
             return Boolean.parseBoolean(defaultValue);
         }
@@ -99,7 +99,7 @@ public class SparkplugConfiguration extends PropertiesReader {
         final var value = getProperty(key);
         if (value == null) {
             if (!defaultValue.isEmpty()) {
-                log.warn("No '{}' configured , using default: {}", key, defaultValue);
+                LOG.warn("No '{}' configured. Using default: {}", key, defaultValue);
             }
             return defaultValue;
         }
@@ -126,25 +126,25 @@ public class SparkplugConfiguration extends PropertiesReader {
         Objects.requireNonNull(key, "Key to fetch property must not be null");
         final var value = properties != null ? properties.getProperty(key) : null;
         if (value == null) {
-            log.warn("No '{}' configured, using default: {}", key, defaultValue);
+            LOG.warn("No '{}' configured. Using default: {}", key, defaultValue);
             return defaultValue;
         }
         final long valueAsLong;
         try {
             valueAsLong = Long.parseLong(value);
         } catch (final NumberFormatException e) {
-            log.warn("Value for the property '{}' is not a number, original value {}. Using default: {}",
+            LOG.warn("Value for the property '{}' is not a number, original value {}. Using default: {}",
                     key,
                     value,
                     defaultValue);
             return defaultValue;
         }
         if (!zeroAllowed && valueAsLong == 0) {
-            log.warn("Value for the property '{}' can't be zero. Using default: {}", key, defaultValue);
+            LOG.warn("Value for the property '{}' can't be zero. Using default: {}", key, defaultValue);
             return defaultValue;
         }
         if (!negativeAllowed && valueAsLong < 0) {
-            log.warn("Value for the property '{}' can't be negative. Using default: {}", key, defaultValue);
+            LOG.warn("Value for the property '{}' can't be negative. Using default: {}", key, defaultValue);
             return defaultValue;
         }
         return valueAsLong;

@@ -29,15 +29,18 @@ import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.logFormatt
 import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.modifySparkplugTimestamp;
 
 /**
- * {@link PublishOutboundInterceptor},
- * Modifies the timestamp of the DEATH message
- * - that was originally stored in a will - so that the timestamp will be updated.
+ * Interceptor for outbound PUBLISH packets that updates timestamps in Sparkplug NDEATH messages.
+ * <p>
+ * This interceptor modifies the timestamp of NDEATH messages that were originally stored as
+ * Last Will and Testament (LWT) messages, ensuring the timestamp reflects the actual
+ * disconnection time when the message is published.
  *
+ * @author David Sondermann
  * @since 4.3.1
  */
 public class SparkplugPublishOutboundInterceptor implements PublishOutboundInterceptor {
 
-    private static final @NotNull Logger log = LoggerFactory.getLogger(SparkplugPublishOutboundInterceptor.class);
+    private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugPublishOutboundInterceptor.class);
 
     private final @NotNull String sparkplugVersion;
     private final boolean useCompression;
@@ -55,12 +58,12 @@ public class SparkplugPublishOutboundInterceptor implements PublishOutboundInter
             @NotNull PublishOutboundOutput publishOutboundOutput) {
         final var topic = publishOutboundInput.getPublishPacket().getTopic();
         final var clientId = publishOutboundInput.getClientInformation().getClientId();
-        if (log.isTraceEnabled()) {
-            log.trace("OUTBOUND PUBLISH at: {} to: {} ", topic, clientId);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("OUTBOUND PUBLISH at: {} to: {} ", topic, clientId);
         }
         final var topicStructure = new TopicStructure(topic);
         if (!topicStructure.isValid(sparkplugVersion)) {
-            // skip it is not a sparkplug publish
+            // skip it is not a Sparkplug publish
             return;
         }
         if (topicStructure.getMessageType() == MessageType.NDEATH) {
@@ -69,20 +72,20 @@ public class SparkplugPublishOutboundInterceptor implements PublishOutboundInter
                 try {
                     final var newDeath = modifySparkplugTimestamp(useCompression, publishPacket.getPayload().get());
                     publishPacket.setPayload(newDeath);
-                    if (log.isTraceEnabled()) {
-                        log.trace("Modify timestamp of NDEATH message from: {}", topic);
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Modify timestamp of NDEATH message from '{}'", topic);
                     }
                     if (jsonLogEnabled) {
                         logFormattedPayload(clientId, topic, publishPacket, topicStructure);
                     }
                 } catch (final Exception all) {
-                    log.error("Modify NDEATH message from {} failed: {}", topic, all.getMessage());
-                    if (log.isDebugEnabled()) {
-                        log.debug("Original exception", all);
+                    LOG.error("Modify NDEATH message from '{}' failed: {}", topic, all.getMessage());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Original exception", all);
                     }
                 }
             } else {
-                log.warn("No payload present in the sparkplug message");
+                LOG.warn("No payload present in the Sparkplug message");
             }
         }
     }
