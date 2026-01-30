@@ -46,6 +46,14 @@ dependencies {
     implementation(libs.jackson)
     implementation(libs.jackson.databind)
     implementation(libs.protobuf)
+
+    // tahu-core:1.0.14 pulls in vulnerable transitive dependencies that cannot be updated by upgrading tahu
+    // (newer tahu versions require Java 17)
+    constraints {
+        implementation(libs.commonsLang)
+        implementation(libs.logback.core)
+        implementation(libs.logback.classic)
+    }
 }
 
 tasks.register<Checksum>("checksum") {
