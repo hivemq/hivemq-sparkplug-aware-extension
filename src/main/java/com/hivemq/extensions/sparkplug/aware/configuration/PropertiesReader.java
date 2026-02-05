@@ -36,12 +36,15 @@ public abstract class PropertiesReader {
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(PropertiesReader.class);
 
     private final @NotNull File configFilePath;
+    private final @NotNull String filename;
 
     @Nullable Properties properties;
 
-    PropertiesReader(final @NotNull File configFilePath) {
+    PropertiesReader(final @NotNull File configFilePath, final @NotNull String filename) {
         Objects.requireNonNull(configFilePath, "Path to config file must not be null");
+        Objects.requireNonNull(filename, "Filename must not be null");
         this.configFilePath = configFilePath;
+        this.filename = filename;
     }
 
     /**
@@ -50,7 +53,7 @@ public abstract class PropertiesReader {
      * @return <b>true</b> if properties are loaded, else <b>false</b>.
      */
     public boolean readPropertiesFromFile() {
-        final var file = new File(configFilePath + File.separator + getFilename());
+        final var file = new File(configFilePath, filename);
         try {
             loadProperties(file);
         } catch (final IOException e) {
@@ -59,6 +62,10 @@ public abstract class PropertiesReader {
         }
 
         return true;
+    }
+
+    @NotNull String getFilename() {
+        return filename;
     }
 
     /**
@@ -93,6 +100,4 @@ public abstract class PropertiesReader {
             properties.load(reader);
         }
     }
-
-    public abstract @NotNull String getFilename();
 }
