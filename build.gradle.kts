@@ -85,7 +85,7 @@ oci {
                         permissions("opt/hivemq/extensions/", 0b111_111_101)
                         into("opt/hivemq/extensions") {
                             permissions("*/", 0b111_111_101)
-                            permissions("*/conf/sparkplug.properties", 0b110_110_100)
+                            permissions("*/conf/config.properties", 0b110_110_100)
                             permissions("*/hivemq-extension.xml", 0b110_110_100)
                             from(zipTree(tasks.hivemqExtensionZip.flatMap { it.archiveFile }))
                         }
@@ -107,6 +107,7 @@ testing {
                 compileOnly(libs.jetbrains.annotations)
                 implementation(libs.assertj)
                 implementation(libs.mockito)
+                implementation(libs.logback.classic)
             }
         }
         "integrationTest"(JvmTestSuite::class) {

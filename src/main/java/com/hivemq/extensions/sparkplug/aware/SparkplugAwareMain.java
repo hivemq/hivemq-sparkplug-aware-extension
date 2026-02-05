@@ -21,12 +21,11 @@ import com.hivemq.extension.sdk.api.parameter.ExtensionStartOutput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopInput;
 import com.hivemq.extension.sdk.api.parameter.ExtensionStopOutput;
 import com.hivemq.extension.sdk.api.services.Services;
+import com.hivemq.extensions.sparkplug.aware.configuration.ConfigResolver;
 import com.hivemq.extensions.sparkplug.aware.configuration.SparkplugConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * Main entry point for the HiveMQ Sparkplug Aware Extension.
@@ -48,6 +47,9 @@ import java.io.File;
  */
 public class SparkplugAwareMain implements ExtensionMain {
 
+    private static final @NotNull String CONFIG_PATH = "conf/config.properties";
+    private static final @NotNull String LEGACY_CONFIG_PATH = "conf/sparkplug.properties";
+
     private static final @NotNull Logger LOG = LoggerFactory.getLogger(SparkplugAwareMain.class);
 
     @Override
@@ -57,7 +59,13 @@ public class SparkplugAwareMain implements ExtensionMain {
         try {
             // read & validate configuration
             final var extensionHomeFolder = extensionStartInput.getExtensionInformation().getExtensionHomeFolder();
-            final var configuration = new SparkplugConfiguration(new File(extensionHomeFolder, "conf"));
+            final var configResolver = new ConfigResolver(extensionHomeFolder.toPath(),
+                    "Sparkplug Aware Extension",
+                    CONFIG_PATH,
+                    LEGACY_CONFIG_PATH);
+            final var resolvedConfigFile = configResolver.get().toFile();
+            final var configuration =
+                    new SparkplugConfiguration(resolvedConfigFile.getParentFile(), resolvedConfigFile.getName());
             if (!configurationValidated(configuration)) {
                 extensionStartOutput.preventExtensionStartup("Could not read properties");
                 return;

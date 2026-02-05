@@ -60,7 +60,7 @@ class SparkplugPublishOutboundInterceptorTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        file = tempDir.resolve("sparkplug.properties");
+        file = tempDir.resolve("config.properties");
 
         when(publishOutboundInput.getPublishPacket()).thenReturn(publishPacket);
         when(publishOutboundInput.getClientInformation()).thenReturn(clientInformation);
@@ -178,7 +178,7 @@ class SparkplugPublishOutboundInterceptorTest {
     private SparkplugPublishOutboundInterceptor createInterceptor(
             final @NotNull List<String> properties) throws Exception {
         Files.write(file, properties);
-        final var configuration = new SparkplugConfiguration(file.getParent().toFile());
+        final var configuration = new SparkplugConfiguration(file.getParent().toFile(), "config.properties");
         configuration.readPropertiesFromFile();
         return new SparkplugPublishOutboundInterceptor(configuration);
     }

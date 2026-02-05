@@ -28,7 +28,7 @@ If it does, it MUST set the timestamp to the UTC time at which it attempts to de
 
 == Configuration
 
-The Extension expects the configuration file `conf/sparkplug.properties` in the extension home folder.
+The Extension expects the configuration file `conf/config.properties` in the extension home folder.
 This configuration file contains a set of properties to align the behavior of the extension.
 
 The topic structure root for the systopic, and the Sparkplug version can be configured.

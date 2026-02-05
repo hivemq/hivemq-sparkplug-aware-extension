@@ -53,7 +53,7 @@ class SparkplugSubscribeInterceptorTest {
 
     @BeforeEach
     void setUp() {
-        file = tempDir.resolve("sparkplug.properties");
+        file = tempDir.resolve("config.properties");
 
         when(subscribeInboundInput.getClientInformation()).thenReturn(clientInformation);
         when(clientInformation.getClientId()).thenReturn("testClient");
@@ -146,7 +146,7 @@ class SparkplugSubscribeInterceptorTest {
     private @NotNull SparkplugSubscribeInterceptor createInterceptor(final @NotNull List<String> properties)
             throws Exception {
         Files.write(file, properties);
-        final var configuration = new SparkplugConfiguration(file.getParent().toFile());
+        final var configuration = new SparkplugConfiguration(file.getParent().toFile(), "config.properties");
         configuration.readPropertiesFromFile();
         return new SparkplugSubscribeInterceptor(configuration);
     }

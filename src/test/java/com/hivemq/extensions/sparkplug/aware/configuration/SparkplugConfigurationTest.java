@@ -34,7 +34,7 @@ class SparkplugConfigurationTest {
     @Test
     void shouldReadConfigurationFromFile() {
         final var extensionFolder = new File("src/hivemq-extension");
-        final var configuration = new SparkplugConfiguration(new File(extensionFolder, "conf"));
+        final var configuration = new SparkplugConfiguration(new File(extensionFolder, "conf"), "config.properties");
         assertThat(configuration.readPropertiesFromFile()).isTrue();
     }
 
@@ -132,13 +132,13 @@ class SparkplugConfigurationTest {
     @Test
     void shouldReturnFilename() throws Exception {
         final var configuration = createConfiguration(List.of());
-        assertThat(configuration.getFilename()).isEqualTo("sparkplug.properties");
+        assertThat(configuration.getFilename()).isEqualTo("config.properties");
     }
 
     @Test
     void shouldReturnFalseForNonExistentConfigFile() {
         final var nonExistentDir = new File("/non/existent/path");
-        final var configuration = new SparkplugConfiguration(nonExistentDir);
+        final var configuration = new SparkplugConfiguration(nonExistentDir, "config.properties");
         assertThat(configuration.readPropertiesFromFile()).isFalse();
     }
 
@@ -159,9 +159,9 @@ class SparkplugConfigurationTest {
 
     private @NotNull SparkplugConfiguration createConfiguration(final @NotNull List<String> properties)
             throws Exception {
-        final var file = tempDir.resolve("sparkplug.properties");
+        final var file = tempDir.resolve("config.properties");
         Files.write(file, properties);
-        final var configuration = new SparkplugConfiguration(tempDir.toFile());
+        final var configuration = new SparkplugConfiguration(tempDir.toFile(), "config.properties");
         configuration.readPropertiesFromFile();
         return configuration;
     }
