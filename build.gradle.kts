@@ -1,12 +1,8 @@
-import org.gradle.crypto.checksum.Checksum
-
 plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.defaults)
     alias(libs.plugins.oci)
     alias(libs.plugins.spotless)
-    alias(libs.plugins.checksum)
-    alias(libs.plugins.release)
 }
 
 group = "com.hivemq.extensions"
@@ -54,12 +50,6 @@ dependencies {
         implementation(libs.logback.core)
         implementation(libs.logback.classic)
     }
-}
-
-tasks.register<Checksum>("checksum") {
-    checksumAlgorithm = Checksum.Algorithm.SHA256
-    inputFiles.from(tasks.hivemqExtensionZip)
-    outputDirectory = layout.buildDirectory.dir("hivemq-extension")
 }
 
 oci {
@@ -147,14 +137,6 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
         leadingTabsToSpaces(4)
-    }
-}
-
-release {
-    buildTasks = listOf("clean", "hivemqExtensionZip", "checksum")
-    scmAdapters = listOf(net.researchgate.release.GitAdapter::class.java)
-    git {
-        requireBranch.set("")
     }
 }
 
