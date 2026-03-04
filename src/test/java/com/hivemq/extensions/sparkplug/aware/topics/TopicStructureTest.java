@@ -123,10 +123,9 @@ class TopicStructureTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "topic",                    // 1 level
-            "topic/level2",             // 2 levels
-            "topic/level2/level3"       // 3 levels
+    @ValueSource(strings = {"topic", // 1 level
+            "topic/level2", // 2 levels
+            "topic/level2/level3" // 3 levels
     })
     void constructor_withInsufficientLevels_setsDefaultValues(final String topic) {
         final var topicStructure = new TopicStructure(topic);
@@ -274,12 +273,8 @@ class TopicStructureTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "spBv1.0/group1/NBIRTH/edge1",
-            "spBv1.0/group1/DBIRTH/edge1/device1",
-            "spBv1.0/group1/NDATA/edge1",
-            "spBv1.0/group1/DDATA/edge1/device1",
-            "spBv1.0/group1/STATE/scada1"})
+    @ValueSource(strings = {"spBv1.0/group1/NBIRTH/edge1", "spBv1.0/group1/DBIRTH/edge1/device1",
+            "spBv1.0/group1/NDATA/edge1", "spBv1.0/group1/DDATA/edge1/device1", "spBv1.0/group1/STATE/scada1"})
     void isValid_withVariousValidTopics_returnsTrue(final String topic) {
         final var topicStructure = new TopicStructure(topic);
 

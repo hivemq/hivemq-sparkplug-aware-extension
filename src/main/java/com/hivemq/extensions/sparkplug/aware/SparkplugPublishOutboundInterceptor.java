@@ -32,12 +32,11 @@ import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.modifySpar
 /**
  * Interceptor for outbound PUBLISH packets that updates timestamps in Sparkplug NDEATH messages.
  * <p>
- * This interceptor modifies the timestamp of NDEATH messages that were originally stored as
- * Last Will and Testament (LWT) messages, ensuring the timestamp reflects the actual
- * disconnection time when the message is published.
+ * This interceptor modifies the timestamp of NDEATH messages that were originally stored as Last Will and Testament
+ * (LWT) messages, ensuring the timestamp reflects the actual disconnection time when the message is published.
  *
  * @author David Sondermann
- * @since 4.3.1
+ * @since  4.3.1
  */
 public class SparkplugPublishOutboundInterceptor implements PublishOutboundInterceptor {
 

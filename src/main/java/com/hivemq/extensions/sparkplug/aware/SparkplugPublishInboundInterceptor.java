@@ -40,9 +40,9 @@ import static com.hivemq.extensions.sparkplug.aware.utils.PayloadUtil.modifySpar
  * <p>
  * This interceptor performs the following operations:
  * <ul>
- *     <li>Forwards each incoming NBIRTH and DBIRTH message to a corresponding system topic with retained flag</li>
- *     <li>Updates timestamps in NDEATH messages to reflect actual disconnection time</li>
- *     <li>Optionally logs formatted payload data when JSON logging is enabled</li>
+ * <li>Forwards each incoming NBIRTH and DBIRTH message to a corresponding system topic with retained flag</li>
+ * <li>Updates timestamps in NDEATH messages to reflect actual disconnection time</li>
+ * <li>Optionally logs formatted payload data when JSON logging is enabled</li>
  * </ul>
  *
  * @since 4.3.1

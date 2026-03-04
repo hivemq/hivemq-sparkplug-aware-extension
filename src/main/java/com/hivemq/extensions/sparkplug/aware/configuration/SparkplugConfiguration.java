@@ -85,9 +85,9 @@ public class SparkplugConfiguration extends PropertiesReader {
      * Fetch property with given <b>key</b>. If the fetched {@link String} is <b>null</b> the <b>defaultValue</b> will
      * be returned.
      *
-     * @param key          Key of the property.
-     * @param defaultValue Default value as fallback, if property has no value.
-     * @return the actual value of the property if it is set, else the <b>defaultValue</b>.
+     * @param  key          Key of the property.
+     * @param  defaultValue Default value as fallback, if property has no value.
+     * @return              the actual value of the property if it is set, else the <b>defaultValue</b>.
      */
     private String validateStringProperty(final @NotNull String key, final @NotNull String defaultValue) {
         Objects.requireNonNull(key, "Key to fetch property must not be null");
@@ -103,15 +103,14 @@ public class SparkplugConfiguration extends PropertiesReader {
     }
 
     /**
-     * Fetch property with given <b>key</b>.
-     * If the fetched {@link String} value is not <b>null</b> convert the value to an int and check validation
-     * constraints if given flags are <b>false</b> before returning the value.
+     * Fetch property with given <b>key</b>. If the fetched {@link String} value is not <b>null</b> convert the value to
+     * an int and check validation constraints if given flags are <b>false</b> before returning the value.
      *
-     * @param key             Key of the property
-     * @param defaultValue    Default value as fallback, if property has no value
-     * @param zeroAllowed     use <b>true</b> if property can be zero
-     * @param negativeAllowed use <b>true</b> is property can be negative int
-     * @return the actual value of the property if it is set and valid, else the <b>defaultValue</b>
+     * @param  key             Key of the property
+     * @param  defaultValue    Default value as fallback, if property has no value
+     * @param  zeroAllowed     use <b>true</b> if property can be zero
+     * @param  negativeAllowed use <b>true</b> is property can be negative int
+     * @return                 the actual value of the property if it is set and valid, else the <b>defaultValue</b>
      */
     @SuppressWarnings("SameParameterValue")
     private long validateLongProperty(

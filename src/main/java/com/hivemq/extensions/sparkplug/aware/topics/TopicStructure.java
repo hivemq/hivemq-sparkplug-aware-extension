@@ -22,24 +22,27 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a parsed Sparkplug topic structure and provides validation against the Sparkplug specification.
  * <p>
- * This class parses MQTT topic strings into their Sparkplug components and validates them according
- * to the Sparkplug topic structure specification:
+ * This class parses MQTT topic strings into their Sparkplug components and validates them according to the Sparkplug
+ * topic structure specification:
+ *
  * <pre>
  * namespace/group_id/message_type/edge_node_id/[device_id]
  * </pre>
+ *
  * or for STATE messages:
+ *
  * <pre>
- * namespace/group_id/STATE/scada_host_id
+ * namespace / group_id / STATE / scada_host_id
  * </pre>
  * <p>
  * The class extracts and provides access to:
  * <ul>
- *     <li>Namespace - typically the Sparkplug version (e.g., "spBv1.0")</li>
- *     <li>Group ID - logical grouping of edge nodes</li>
- *     <li>Message Type - NBIRTH, DBIRTH, NDEATH, DDEATH, NDATA, DDATA, NCMD, DCMD, or STATE</li>
- *     <li>Edge of Network (EoN) ID - identifier for the edge node</li>
- *     <li>Device ID - optional identifier for devices under an edge node</li>
- *     <li>SCADA ID - identifier for SCADA host (STATE messages only)</li>
+ * <li>Namespace - typically the Sparkplug version (e.g., "spBv1.0")</li>
+ * <li>Group ID - logical grouping of edge nodes</li>
+ * <li>Message Type - NBIRTH, DBIRTH, NDEATH, DDEATH, NDATA, DDATA, NCMD, DCMD, or STATE</li>
+ * <li>Edge of Network (EoN) ID - identifier for the edge node</li>
+ * <li>Device ID - optional identifier for devices under an edge node</li>
+ * <li>SCADA ID - identifier for SCADA host (STATE messages only)</li>
  * </ul>
  *
  * @author David Sondermann
@@ -105,27 +108,13 @@ public class TopicStructure {
 
     @Override
     public @NotNull String toString() {
-        return "TopicStructure{" +
-                "namespace='" +
-                namespace +
-                "', groupId='" +
-                groupId +
-                "', messageType='" +
-                messageType +
-                "', scadaId='" +
-                scadaId +
-                "', eonId='" +
-                eonId +
-                "', deviceId='" +
-                deviceId +
-                "'}";
+        return "TopicStructure{" + "namespace='" + namespace + "', groupId='" + groupId + "', messageType='" +
+                messageType + "', scadaId='" + scadaId + "', eonId='" + eonId + "', deviceId='" + deviceId + "'}";
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isValid(final @NotNull String sparkplugVersion) {
-        return topicLevels > 3 &&
-                isValidNamespace(sparkplugVersion) &&
-                isValidMessageType() &&
+        return topicLevels > 3 && isValidNamespace(sparkplugVersion) && isValidMessageType() &&
                 (scadaId != null || eonId != null);
     }
 

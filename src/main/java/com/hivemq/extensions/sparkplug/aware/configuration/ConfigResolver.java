@@ -54,7 +54,8 @@ public class ConfigResolver implements Supplier<Path> {
         // the only way it could be there is when deliberately placed
         if (legacyPath.toFile().exists()) {
             if (!legacyWarningAlreadyLogged.getAndSet(true)) {
-                LOG.warn("{}: The configuration file '{}' uses a legacy name. " +
+                LOG.warn(
+                        "{}: The configuration file '{}' uses a legacy name. " +
                                 "Please rename the configuration file to '{}'. " +
                                 "Support for the legacy name will be removed in a future release.",
                         extensionName,

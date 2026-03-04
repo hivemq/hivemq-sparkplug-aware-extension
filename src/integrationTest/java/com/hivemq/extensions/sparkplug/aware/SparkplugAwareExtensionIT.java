@@ -41,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests for the Sparkplug Aware Extension.
  * <p>
- * Tests verify that NBIRTH and DBIRTH messages are republished to the system topic
- * {@code $sparkplug/certificates/...} with the retain flag set.
+ * Tests verify that NBIRTH and DBIRTH messages are republished to the system topic {@code $sparkplug/certificates/...}
+ * with the retain flag set.
  */
 @Testcontainers
 class SparkplugAwareExtensionIT {
@@ -55,7 +55,7 @@ class SparkplugAwareExtensionIT {
     @Container
     private final @NotNull HiveMQContainer hivemq =
             new HiveMQContainer(OciImages.getImageName("hivemq/extensions/hivemq-sparkplug-aware-extension")
-                    .asCompatibleSubstituteFor("hivemq/hivemq4")) //
+                    .asCompatibleSubstituteFor("hivemq/hivemq4"))
                     .withHiveMQConfig(MountableFile.forClasspathResource("config.xml"))
                     .withLogConsumer(outputFrame -> System.out.print("HiveMQ: " + outputFrame.getUtf8String()))
                     .withEnv("HIVEMQ_DISABLE_STATISTICS", "true");
