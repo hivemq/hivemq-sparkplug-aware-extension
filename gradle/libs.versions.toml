@@ -31,9 +31,7 @@ testcontainers-hivemq = { module = "org.testcontainers:testcontainers-hivemq", v
 testcontainers-junitJupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
 
 [plugins]
-checksum = { id = "org.gradle.crypto.checksum", version = "1.4.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.3.0" }
 hivemq-extension = { id = "com.hivemq.extension", version = "5.0.0" }
 spotless = { id = "com.diffplug.spotless", version = "8.3.0" }
 oci = { id = "io.github.sgtsilvio.gradle.oci", version = "0.25.0" }
-release = { id = "net.researchgate.release", version = "3.1.0" }
