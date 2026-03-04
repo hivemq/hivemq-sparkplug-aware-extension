@@ -31,20 +31,19 @@ import org.slf4j.LoggerFactory;
 /**
  * Main entry point for the HiveMQ Sparkplug Aware Extension.
  * <p>
- * This extension implements Sparkplug awareness by intercepting and modifying MQTT messages
- * to ensure compliance with Sparkplug specification requirements. The extension is instantiated
- * either during the HiveMQ startup process (if enabled) or dynamically when enabled on a running
- * HiveMQ broker.
+ * This extension implements Sparkplug awareness by intercepting and modifying MQTT messages to ensure compliance with
+ * Sparkplug specification requirements. The extension is instantiated either during the HiveMQ startup process (if
+ * enabled) or dynamically when enabled on a running HiveMQ broker.
  * <p>
  * Key functionality includes:
  * <ul>
- *     <li>Forwarding NBIRTH and DBIRTH messages to system topics with retained flag</li>
- *     <li>Updating timestamps in NDEATH messages to reflect actual disconnection time</li>
- *     <li>Preserving retained flag behavior for Sparkplug system topic subscriptions</li>
+ * <li>Forwarding NBIRTH and DBIRTH messages to system topics with retained flag</li>
+ * <li>Updating timestamps in NDEATH messages to reflect actual disconnection time</li>
+ * <li>Preserving retained flag behavior for Sparkplug system topic subscriptions</li>
  * </ul>
  *
  * @author David Sondermann
- * @since 4.0.0
+ * @since  4.0.0
  */
 public class SparkplugAwareMain implements ExtensionMain {
 

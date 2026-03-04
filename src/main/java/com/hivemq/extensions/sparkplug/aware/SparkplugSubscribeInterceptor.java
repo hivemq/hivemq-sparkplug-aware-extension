@@ -29,15 +29,15 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The standard MQTT behavior for system topics is as follows:
  * <ul>
- *     <li>If a subscriber exists - retained messages will be published as non-retained (live publish)</li>
- *     <li>If no subscriber exists - retained messages will be published as retained</li>
+ * <li>If a subscriber exists - retained messages will be published as non-retained (live publish)</li>
+ * <li>If no subscriber exists - retained messages will be published as retained</li>
  * </ul>
  * <p>
- * This interceptor modifies subscriptions to Sparkplug system topics so that the retained flag
- * is preserved as published, ensuring consistent behavior regardless of subscriber presence.
+ * This interceptor modifies subscriptions to Sparkplug system topics so that the retained flag is preserved as
+ * published, ensuring consistent behavior regardless of subscriber presence.
  *
  * @author David Sondermann
- * @since 4.3.1
+ * @since  4.3.1
  */
 public class SparkplugSubscribeInterceptor implements SubscribeInboundInterceptor {
 

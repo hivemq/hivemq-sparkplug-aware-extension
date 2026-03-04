@@ -21,25 +21,26 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Enumeration of Sparkplug message types as defined in the Sparkplug specification.
  * <p>
- * Sparkplug defines specific message types for lifecycle management, data transmission,
- * and command execution within an Industrial IoT infrastructure:
+ * Sparkplug defines specific message types for lifecycle management, data transmission, and command execution within an
+ * Industrial IoT infrastructure:
  * <ul>
- *     <li><b>BIRTH messages</b> - Announce availability and publish metrics/metadata</li>
- *     <li><b>DEATH messages</b> - Announce disconnection or unavailability</li>
- *     <li><b>DATA messages</b> - Publish metric data updates</li>
- *     <li><b>CMD messages</b> - Receive commands from SCADA host applications</li>
- *     <li><b>STATE messages</b> - SCADA host availability status</li>
+ * <li><b>BIRTH messages</b> - Announce availability and publish metrics/metadata</li>
+ * <li><b>DEATH messages</b> - Announce disconnection or unavailability</li>
+ * <li><b>DATA messages</b> - Publish metric data updates</li>
+ * <li><b>CMD messages</b> - Receive commands from SCADA host applications</li>
+ * <li><b>STATE messages</b> - SCADA host availability status</li>
  * </ul>
  * <p>
  * Message types are prefixed with:
  * <ul>
- *     <li><b>N</b> - Node (Edge of Network node)</li>
- *     <li><b>D</b> - Device (under an edge node)</li>
+ * <li><b>N</b> - Node (Edge of Network node)</li>
+ * <li><b>D</b> - Device (under an edge node)</li>
  * </ul>
  *
  * @author David Sondermann
  */
 public enum MessageType {
+
     /**
      * Device BIRTH certificate message - announces device availability and publishes its metrics.
      */
@@ -84,11 +85,11 @@ public enum MessageType {
     /**
      * Converts a string representation to a {@link MessageType} enum constant.
      * <p>
-     * This method performs a case-sensitive match against the enum constant names.
-     * If no match is found, {@link #UNKNOWN} is returned.
+     * This method performs a case-sensitive match against the enum constant names. If no match is found,
+     * {@link #UNKNOWN} is returned.
      *
-     * @param s the string to convert to a message type
-     * @return the corresponding {@link MessageType}, or {@link #UNKNOWN} if no match is found
+     * @param  s the string to convert to a message type
+     * @return   the corresponding {@link MessageType}, or {@link #UNKNOWN} if no match is found
      */
     public static @NotNull MessageType fromString(final @NotNull String s) {
         try {

@@ -176,8 +176,8 @@ class SparkplugPublishOutboundInterceptorTest {
         verify(modifiableOutboundPublish, never()).setPayload(any());
     }
 
-    private SparkplugPublishOutboundInterceptor createInterceptor(
-            final @NotNull List<String> properties) throws Exception {
+    private SparkplugPublishOutboundInterceptor createInterceptor(final @NotNull List<String> properties)
+            throws Exception {
         Files.write(file, properties);
         final var configuration = new SparkplugConfiguration(file.getParent().toFile(), "config.properties");
         configuration.readPropertiesFromFile();

@@ -38,11 +38,11 @@ import java.util.Date;
  * <p>
  * This class provides functionality for:
  * <ul>
- *     <li>Parsing and decoding Sparkplug B payloads from byte buffers</li>
- *     <li>Modifying timestamps in Sparkplug messages (e.g., for NDEATH messages)</li>
- *     <li>Converting Sparkplug payloads to JSON format for logging and debugging</li>
- *     <li>Extracting individual metrics from Sparkplug payloads</li>
- *     <li>Supporting optional GZIP compression for payload encoding</li>
+ * <li>Parsing and decoding Sparkplug B payloads from byte buffers</li>
+ * <li>Modifying timestamps in Sparkplug messages (e.g., for NDEATH messages)</li>
+ * <li>Converting Sparkplug payloads to JSON format for logging and debugging</li>
+ * <li>Extracting individual metrics from Sparkplug payloads</li>
+ * <li>Supporting optional GZIP compression for payload encoding</li>
  * </ul>
  * <p>
  * This is a utility class with private constructor to prevent instantiation.
@@ -62,16 +62,15 @@ public final class PayloadUtil {
     /**
      * Modifies the timestamp of a Sparkplug B payload to the current time.
      * <p>
-     * This method decodes a Sparkplug B payload from the provided byte buffer, creates a new
-     * payload with an updated timestamp (current time), and re-encodes it. The method is
-     * typically used to update NDEATH message timestamps from their original Last Will and
-     * Testament (LWT) creation time to the actual disconnection time.
+     * This method decodes a Sparkplug B payload from the provided byte buffer, creates a new payload with an updated
+     * timestamp (current time), and re-encodes it. The method is typically used to update NDEATH message timestamps
+     * from their original Last Will and Testament (LWT) creation time to the actual disconnection time.
      * <p>
      * All other payload properties (metrics, sequence number, UUID, body) are preserved unchanged.
      *
-     * @param useCompression whether to apply GZIP compression to the re-encoded payload
-     * @param byteBuffer     the byte buffer containing the original Sparkplug B payload
-     * @return a new byte buffer containing the payload with updated timestamp
+     * @param  useCompression           whether to apply GZIP compression to the re-encoded payload
+     * @param  byteBuffer               the byte buffer containing the original Sparkplug B payload
+     * @return                          a new byte buffer containing the payload with updated timestamp
      * @throws Exception                if the payload cannot be decoded or encoded
      * @throws IllegalArgumentException if the byte buffer does not contain a valid Sparkplug B payload
      */
@@ -102,9 +101,8 @@ public final class PayloadUtil {
     /**
      * Logs a Sparkplug payload in formatted JSON for debugging and monitoring purposes.
      * <p>
-     * This method extracts the payload from a PUBLISH packet, converts it to JSON format,
-     * and logs it with client and topic information. STATE messages are excluded from logging
-     * as they do not contain Sparkplug B payloads.
+     * This method extracts the payload from a PUBLISH packet, converts it to JSON format, and logs it with client and
+     * topic information. STATE messages are excluded from logging as they do not contain Sparkplug B payloads.
      * <p>
      * The log output is written to the "com.hivemq.extensions.sparkplug.jsonLog" logger.
      *
@@ -129,11 +127,11 @@ public final class PayloadUtil {
     /**
      * Formats a JSON string with proper indentation and line breaks for readability.
      * <p>
-     * This method parses the input JSON string and re-serializes it with pretty printing
-     * enabled. If the input is not valid JSON, an error message is returned instead.
+     * This method parses the input JSON string and re-serializes it with pretty printing enabled. If the input is not
+     * valid JSON, an error message is returned instead.
      *
-     * @param jsonObject the JSON string to format
-     * @return the formatted JSON string with indentation, or an error message if parsing fails
+     * @param  jsonObject the JSON string to format
+     * @return            the formatted JSON string with indentation, or an error message if parsing fails
      */
     @VisibleForTesting
     public static @NotNull String asJSONFormatted(String jsonObject) {
@@ -149,12 +147,12 @@ public final class PayloadUtil {
     /**
      * Converts a Sparkplug B payload to its JSON string representation.
      * <p>
-     * This method decodes a Sparkplug B payload from a byte buffer and converts it to
-     * a JSON string format using the Tahu library's built-in JSON serialization.
-     * If decoding fails, an empty string is returned and an error is logged.
+     * This method decodes a Sparkplug B payload from a byte buffer and converts it to a JSON string format using the
+     * Tahu library's built-in JSON serialization. If decoding fails, an empty string is returned and an error is
+     * logged.
      *
-     * @param payload the byte buffer containing the Sparkplug B payload
-     * @return the JSON string representation of the payload, or an empty string if parsing fails
+     * @param  payload the byte buffer containing the Sparkplug B payload
+     * @return         the JSON string representation of the payload, or an empty string if parsing fails
      */
     @VisibleForTesting
     public static @NotNull String getPayloadAsJSON(@NotNull ByteBuffer payload) {
@@ -172,12 +170,12 @@ public final class PayloadUtil {
     /**
      * Decodes a Sparkplug B payload from a byte buffer.
      * <p>
-     * This is a helper method that extracts bytes from the buffer and uses the
-     * Tahu library's SparkplugBPayloadDecoder to parse them into a SparkplugBPayload object.
-     * If decoding fails, an error is logged and {@code null} is returned.
+     * This is a helper method that extracts bytes from the buffer and uses the Tahu library's SparkplugBPayloadDecoder
+     * to parse them into a SparkplugBPayload object. If decoding fails, an error is logged and {@code null} is
+     * returned.
      *
-     * @param payload the byte buffer containing the Sparkplug B payload
-     * @return the decoded SparkplugBPayload, or {@code null} if parsing fails
+     * @param  payload the byte buffer containing the Sparkplug B payload
+     * @return         the decoded SparkplugBPayload, or {@code null} if parsing fails
      */
     private static SparkplugBPayload getSparkplugBPayload(final @NotNull ByteBuffer payload) {
         try {
@@ -193,11 +191,11 @@ public final class PayloadUtil {
     /**
      * Extracts the remaining bytes from a byte buffer into a byte array.
      * <p>
-     * This is a helper method that reads all remaining bytes from the buffer's current
-     * position to its limit and returns them as a byte array.
+     * This is a helper method that reads all remaining bytes from the buffer's current position to its limit and
+     * returns them as a byte array.
      *
-     * @param byteBuffer the byte buffer to extract bytes from
-     * @return a byte array containing the remaining bytes from the buffer
+     * @param  byteBuffer the byte buffer to extract bytes from
+     * @return            a byte array containing the remaining bytes from the buffer
      */
     private static byte[] getBytesFromBuffer(final @NotNull ByteBuffer byteBuffer) {
         final var bytes = new byte[byteBuffer.remaining()];
