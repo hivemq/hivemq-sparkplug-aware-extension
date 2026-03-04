@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.hivemq.extension)
     alias(libs.plugins.defaults)
     alias(libs.plugins.oci)
-    alias(libs.plugins.license)
+    alias(libs.plugins.spotless)
     alias(libs.plugins.checksum)
     alias(libs.plugins.release)
 }
@@ -131,9 +131,10 @@ testing {
     }
 }
 
-license {
-    header = rootDir.resolve("HEADER")
-    mapping("java", "SLASHSTAR_STYLE")
+spotless {
+    java {
+        licenseHeaderFile(rootDir.resolve("HEADER"))
+    }
 }
 
 release {

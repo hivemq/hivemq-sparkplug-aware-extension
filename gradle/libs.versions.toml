@@ -34,6 +34,6 @@ testcontainers-junitJupiter = { module = "org.testcontainers:testcontainers-juni
 checksum = { id = "org.gradle.crypto.checksum", version = "1.4.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.3.0" }
 hivemq-extension = { id = "com.hivemq.extension", version = "4.0.0" }
-license = { id = "com.github.hierynomus.license", version = "0.16.1" }
+spotless = { id = "com.diffplug.spotless", version = "8.3.0" }
 oci = { id = "io.github.sgtsilvio.gradle.oci", version = "0.25.0" }
 release = { id = "net.researchgate.release", version = "3.1.0" }
