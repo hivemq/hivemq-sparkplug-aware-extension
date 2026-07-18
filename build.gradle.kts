@@ -114,7 +114,7 @@ testing {
             }
             oci.of(this) {
                 imageDependencies {
-                    runtime(project).tag("latest")
+                    runtime(project()).tag("latest")
                 }
             }
         }
