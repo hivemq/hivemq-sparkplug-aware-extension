@@ -7,7 +7,7 @@ hivemq-mqttClient = "1.4.0"
 jackson = "2.22.3"
 jetbrains-annotations = "26.1.0"
 junit-jupiter = "5.10.0"
-logback = "1.6.3"
+logback = "1.6.4"
 mockito = "5.23.0"
 protobuf = "4.36.2"
 tahu = "1.0.14"
@@ -33,5 +33,5 @@ testcontainers-junitJupiter = { module = "org.testcontainers:testcontainers-juni
 [plugins]
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.3.0" }
 hivemq-extension = { id = "com.hivemq.extension", version = "5.0.0" }
-spotless = { id = "com.diffplug.spotless", version = "8.10.2" }
+spotless = { id = "com.diffplug.spotless", version = "8.10.3" }
 oci = { id = "io.github.sgtsilvio.gradle.oci", version = "0.30.0" }
